@@ -1,3 +1,2 @@
 # IC-Design
-
-## TEST
+Project for OCDC pro Challenge
