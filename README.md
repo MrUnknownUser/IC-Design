@@ -1,8 +1,7 @@
 # IC-Design
 Project for OCDC pro Challenge
 
-test
-
+## Misc
 OpenCored.org => Sammlung HardwareProjekte, qualität naja
 AES + Hardware gibt es viele "Inspirationen" im Netz
 web.archive.org
