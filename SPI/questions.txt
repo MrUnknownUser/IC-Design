@@ -1,0 +1,14 @@
+https://github.com/freecores/tiny_aes
+https://www.fpga4fun.com/SPI.html
+master
+- clock
+- important
+- ssel egal weil nur ein slave
+- welchen modus? https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#Mode_numbers
+slave
+- wird vorrausgesetzt
+- bekommen wir sourcecode zugang?
+
+vollduplex
+- möglichkeit während senden auch zu empfangen
+- hier garnicht mal so sinnvoll weil wir sequentiellen ablauf vorraussetzen
