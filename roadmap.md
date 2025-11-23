@@ -50,3 +50,22 @@
 - collect information about realistic hardware threats (and model accordingly)
     - build countermeasures?
 - discard unrealistic hardware threats (i.e. Laser fault injection) and explain why
+
+
+# Implementation
+- Random Number Generator
+- SPI
+- CMAC (AES-128) -> https://www.kufunda.net/publicdocs/Cryptography%20and%20Network%20Security%20Principles%20and%20Practice%20(6th%20Edition)%20(William%20Stallings).pdf
+    - shared key -> hardcoded for every party
+    - Key expansion zu (K1; K2)
+    - blockbasiertes xor von E(K, M_1) ...
+    - send Message M with calculated HMAC-Tag T to recipient who calculates T'
+    - encryption for transmitted M is plausible since both share a secret key anyways, likely not needed though since known plaintext attacks are unfeasable for AES-128
+
+
+
+## Hausaufgabe
+- billo RNG machine recherchieren
+    - entweder verilog oder theorie
+    - simpel
+    - in hardware umsetzbar
