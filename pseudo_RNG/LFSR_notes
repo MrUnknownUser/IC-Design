@@ -1,0 +1,32 @@
+# Fibonacci LFSR
+- https://gist.github.com/tzechienchu/bf698f51e406cfcc59238a9ceebe2827
+
+- deterministic linear-feedback shift register (LFSR) generator
+## Is it cryptographically strong / suitable for true entropy?
+- No. An LFSR is linear and not cryptographically secure. It is fine for simple statistical randomness or Poisson-like event generation but not for security or high-quality entropy requirements.
+## functionality
+- https://users.ece.cmu.edu/~koopman/lfsr/index.html
+- LFSR feedback polynomial?
+- initialised with non-zero-state (0xAAAAAAAA)
+  -	-> avoidance of all-zero-lockup issue (LSFR)
+	- (nicht nur mit Nullen, da dann das Register aus diesem Zustand niemals herauskäme)
+- https://de.wikipedia.org/wiki/Linear_rückgekoppeltes_Schieberegister
+- uses polynomial to create links between certain bits to fully cycle through the n-bit bytespace
+- primitive polynomial is advised, to reduce period length
+- xor spots at the exponent spots of polynomial
+
+## advantages
+- efficient implementation in hardware
+- no doctorate required
+
+
+## scale to 128-bit
+- new generator polynomial
+- densely populated polynomial preferred (higher computational cost than low amount of crossroads)
+- ideally, use galois (preferred in hardware)
+	- When implementing in FPGA/ASIC and you want higher clock frequency / lower LUT depth / better routing.
+    - For very wide LFSRs or high-speed applications.
+
+## literature
+### tables of primitive polynomials
+- https://www.ams.org/journals/mcom/1973-27-124/S0025-5718-1973-0327722-7/
