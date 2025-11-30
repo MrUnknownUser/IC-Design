@@ -69,3 +69,14 @@
     - entweder verilog oder theorie
     - simpel
     - in hardware umsetzbar
+
+
+
+# quellen
+- https://de.wikipedia.org/wiki/Advanced_Encryption_Standard
+- https://github.com/michaelehab/AES-Verilog
+- https://en.wikipedia.org/wiki/Linear-feedback_shift_register
+- https://www.youtube.com/watch?v=O4xNJsjtN6E
+- https://www.cs.hs-rm.de/~reith/resources/Lehre/Krypto1314/CryptoSkript.pdf
+- https://de.wikipedia.org/wiki/Linear_rückgekoppeltes_Schieberegister
+- 
