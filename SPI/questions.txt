@@ -12,3 +12,6 @@ slave
 vollduplex
 - möglichkeit während senden auch zu empfangen
 - hier garnicht mal so sinnvoll weil wir sequentiellen ablauf vorraussetzen
+
+// hier skripte klauen
+https://www.cs.hs-rm.de/~reith/resources/Lehre/
