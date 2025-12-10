@@ -416,3 +416,8 @@ FodyWeavers.xsd
 *.msix
 *.msm
 *.msp
+
+# Scala
+scala/project/
+scala/target/
+scala/simWorkspace/AesIterative/verilator/
