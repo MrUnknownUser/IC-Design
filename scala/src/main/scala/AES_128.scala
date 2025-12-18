@@ -103,10 +103,10 @@ class AesIterative extends Component {
     val w3 = wordTo4(keyWords(3))
     val rk = Vec(UInt(8 bits), 16)
     for(i <- 0 until 4) {
-      rk(i    ) := w0(i)
-      rk(i+4  ) := w1(i)
-      rk(i+8  ) := w2(i)
-      rk(i+12 ) := w3(i)
+      rk(i) := w0(i)
+      rk(i+4) := w1(i)
+      rk(i+8) := w2(i)
+      rk(i+12) := w3(i)
     }
     rk
   }
