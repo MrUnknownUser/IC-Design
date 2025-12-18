@@ -4,6 +4,20 @@
 ## NFC Reader with RC522 Chip and SPI
 - [Datasheet](https://www.nxp.com/docs/en/data-sheet/MFRC522.pdf)
 - RFID Chip – Communicates with our Keycard
+- Data bytes on both MOSI and MISO lines are sent with the MSB first. Data on both MOSI
+and MISO lines must be stable on the rising edge of the clock and can be changed on the
+falling edge. Data is provided by the MFRC522 on the falling clock edge and is stable
+during the rising clock edge.
+
+### SPI spec
+    - data transfer maximum ~848 kBd
+    - bit length is configurable 32 bit
+    - The interface can handle data speeds up to 10 Mbit/s
+    - SLK_freq = 13.56 MHz maybe?
+    - Data on both MOSI and MISO lines must be stable on the rising edge of the clock and can be changed on the falling edge
+        - mode 0;
+    - Data is provided by the MFRC522 on the falling clock edge and is stable during the rising clock edge.
+        - mode 0;
 
 ### Pinout
 | Pin Nr | Pin Name | Description |
