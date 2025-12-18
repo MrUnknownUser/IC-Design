@@ -1,0 +1,61 @@
+Die vorliegende Implementierung AesIterative realisiert AES-128 als iterative Hardware-Engine. Das Ziel besteht darin, einen ausgewogenen Kompromiss 
+zwischen Flächenaufwand, Einfachheit und funktionaler Korrektheit zu erreichen. Die Architektur ist so konzipiert, dass sie mit minimaler Replikation 
+von Logik auskommt und die Rundenschlüssel on-the-fly berechnet. Dadurch entfällt der Speicherbedarf für vorab berechnete Rundenschlüssel. Diese 
+Entscheidung folgt dem Prinzip, dass in vielen eingebetteten oder ressourcenbeschränkten Umgebungen die Reduktion der belegten Fläche und die 
+Vereinfachung der Timing-Analyse wichtiger sind als maximaler Durchsatz.
+
+Im Rahmen der Implementierung findet eine S-Box Anwendung, die als ROM dargestellt wird. Diese Wahl gründet sich auf mehreren praktischen Überlegungen: 
+Die Synthese eines ROM-basierten S-Box-Designs erweist sich einfach zu synthetisieren und es bietet eine deterministische Latenz. Im Allgemeinen ist es 
+flächeneffizienter als große kombinatorische Netzwerke, insbesondere unter der Voraussetzung, dass die Zieltechnologie über effiziente ROM- oder 
+LUT-Strukturen verfügt. Darüber hinaus erleichtert die ROM-Darstellung die Verifikation und reduziert die Komplexität der Syntheseschritte. Es ist 
+jedoch zu beachten, dass ROM-basierte S-Boxen in bestimmten Implementierungsumgebungen Seitenkanalangriffe begünstigen können. In sicherheitskritischen 
+Anwendungen sind daher zusätzliche Gegenmaßnahmen wie Maskierung oder Randomisierung erforderlich.
+
+Die Abbildung des Zustands erfolgt spaltenweise (column‑major), was der konventionellen Darstellung in der AES‑Spezifikation entspricht und die 
+Implementierung der Transformationen ShiftRows und MixColumns vereinfacht. Die Funktionen zur Umwandlung zwischen Bitvektoren, Byte-Matrizen und 
+32-Bit-Wörtern sind bewusst modular gestaltet. Dies dient dem Zweck, die Lesbarkeit des Codes zu erhöhen und Fehler bei der Bitindizierung zu vermeiden. 
+Die vorliegende Modularität fördert zudem die Wiederverwendbarkeit einzelner Komponenten in alternativen Architekturen, etwa bei einer späteren 
+Erweiterung zu einer pipelined oder teilweise unrolled Implementierung.
+
+Die MixColumns-Operation ist in einer hardwarefreundlichen Form implementiert, die auf der xtime-Operation basiert, welche eine Multiplikation mit 2 in 
+GF(2^8) durchführt. Die vorliegende Implementierung nutzt Bitverschiebung sowie eine bedingte XOR-Operation mit dem Reduktionspolynom 0x1b, welche in 
+Hardware effizient realisierbar ist und kurze kritische Pfade ermöglicht. Die Multiplikationen mit 2 und 3 werden über diese Basisoperationen abgeleitet, 
+wodurch die Anzahl der erforderlichen logischen Gatter reduziert wird. In der finalen Runde wird MixColumns korrekt ausgelassen, um der Spezifikation 
+zu entsprechen.
+
+Der Key Schedule wird iterativ berechnet. Der nächste Rundenschlüssel wird aus dem aktuellen Rundenschlüssel abgeleitet. Dies erfolgt mittels RotWord, 
+SubWord (S‑Box) und XOR mit der Rcon‑Konstanten. Die vorliegende On-the-fly-Berechnung hat den Vorteil, dass die Notwendigkeit, alle Rundenschlüssel 
+zu speichern, vermieden wird. Dies wiederum hat eine Reduktion des Speicherbedarfs zur Folge. Die Implementierung stellt sicher, dass die Wortrotation 
+und die Byte-Substitution korrekt in der Bitbreite gehandhabt werden, und verwendet klare Typen und Registerinitialisierungen, um deterministisches 
+Verhalten nach Reset zu garantieren.
+
+Die zugrundeliegende Steuerlogik ist bewusst einfach gehalten. Ein Startsignal löst die Verarbeitung aus, ein interner Zustand namens "running" steuert 
+den Ablauf über die Runden und die Signale "busy" und "done" kommunizieren den Status an die Peripherie. Diese Schnittstelle erweist sich als geeignet 
+für einfache Integrationsszenarien. Für Streaming-Anwendungen oder höhere Systemintegration wäre eine Erweiterung auf ein Handshake-Protokoll 
+(valid/ready) empfehlenswert. Die Wahl einer sequentiellen Steuerung mit einem Rundenzähler erlaubt eine klare Takt-zu-Takt-Nachverfolgbarkeit der 
+internen Zustände und erleichtert die Simulation sowie die formale Verifikation.
+
+Bei der Selektion der Datentypen und Register wurde explizit auf Bitbreiten und Initialisierungen geachtet. Die Verwendung von Bits, UInt und Vec in 
+Kombination mit Reg und init gewährleistet, dass Synthesewerkzeuge die intendierte Hardwarestruktur korrekt ableiten und deterministische Reset-Zustände 
+erzeugen. Kombinatorische Hilfssignale sind so definiert, dass sie stets einen definierten Wert besitzen. Dies hat den Vorteil, dass Synthese-Warnungen 
+und unerwartete Latches vermieden werden.
+
+Trotz der evidenten Vorzüge dieser Architektur sind spezifische Limitationen und Risiken zu berücksichtigen. Im Hinblick auf den Durchsatz ist 
+festzustellen, dass dieser bei der hier beschriebenen iterativen Natur im Vergleich zu unrolled oder stark gepipelined Implementierungen begrenzt ist. 
+Bei der Verarbeitung hoher Datenraten kann es erforderlich sein, die Runden teilweise oder vollständig zu entfalten oder eine Pipeline einzuführen, 
+um die Verarbeitung mehrerer Blöcke parallel zu ermöglichen. Darüber hinaus ist die Implementierung in Bezug auf Seitenkanalangriffe nicht per se 
+gehärtet. Dies bedeutet, dass ROM-basierte S-Boxen und deterministische Schlüsselableitungen in Leistungsanalysen ausgenutzt werden können. Für 
+Applikationen mit hohen Sicherheitsanforderungen sind zusätzliche Maßnahmen wie Maskierung, Dual-Rail-Logik oder zufällige Permutationen zu 
+implementieren.
+
+--- Sektion answered by Copilot (No manual research done yet) ---
+Für die Integration in einen Synthese- und Fertigungsfluss sind praktische Aspekte zu berücksichtigen. Die Festlegung der Timing Constraints sollte 
+unter Berücksichtigung der Analyse kritischer Pfade erfolgen, insbesondere durch die S‑Box und MixColumns. Bei Bedarf können diese durch Taktteilung 
+oder Pipeline‑Stufen entschärft werden. Es ist erforderlich, die IO-Spezifikation und das Reset-Verhalten an die Zielplattform anzupassen. Empirische 
+Untersuchungen haben gezeigt, dass sich zur Verifikation eine Kombination aus funktionalen Tests mit standardisierten NIST-Testvektoren, randomisierten 
+Tests zur Erkennung von Randfällen sowie formalen Methoden zur Absicherung kritischer Transformationen wie S-Box und MixColumns empfiehlt.
+
+Zusammenfassend lässt sich festhalten, dass das AesIterative-Design eine pragmatische, flächeneffiziente Implementierung von AES-128 darstellt, die 
+sich durch klare Modularität, einfache Steuerung und geringe Speicheranforderungen auszeichnet. Die Architektur erweist sich als geeignet für 
+eingebettete Systeme und ASIC/FPGA-Prototypen, bei denen die Aspekte der Ressourcenbegrenzung und Verifizierbarkeit im Vordergrund stehen. Für 
+Applikationen mit höheren Durchsatzanforderungen oder strengeren Sicherheitsanforderungen sind gezielte Erweiterungen und Härtungsmaßnahmen erforderlich.
