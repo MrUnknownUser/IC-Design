@@ -13,7 +13,7 @@ fpga4fun.com für SPI, EPP, PCI etc.
 
 
 ## How to start flow
-1. In flow/Makefile den Pfad zum config.mk eintragen => DESIGN_CONFIG=./designs/ihp-sg13g2/../config.mk (kann auch so aufgerufen werden mit flow DESIGN_CONFIG=./designs/ihp-sg13g2/../config.mk)
+1. In flow/Makefile den Pfad zum config.mk eintragen => DESIGN_CONFIG=./designs/ihp-sg13g2/../config.mk (kann auch so aufgerufen werden mit make DESIGN_CONFIG=./designs/ihp-sg13g2/../config.mk muss zwingend im /flow verzeichnis sein)
 2. Create config.mk => Set Name, Nickname, DIE_AREA, berechne Werte von CORE_AREA aus DIE_AREA, Rest 1zu1 übernehmen
 3. Create constraint.sdc => Beschreibt Stärke und GEschwindigkeit der Beinchen
 4. Create pad.tlc => Beschreibt die Position und Größe der Pads -> Infos finden sich im LAYR Repo
