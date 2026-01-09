@@ -1,40 +1,46 @@
 Der Advanced Encryption Standard, kurz AES, ist ein symmetrisches Blockchiffreverfahren, das vom National Institute of Standards and Technology (NIST) im Jahr 2001 als Nachfolger des 
-Data Encryption Standard (DES) standardisiert wurde. AES operiert auf einer festen Blockgröße von 128 Bit und unterstützt drei Schlüsselgrößen mit unterschiedlichen Sicherheits- und 
-Leistungscharakteristika: 128, 192 und 256 Bit. Die Anzahl der Runden, die das Klartextblock durchläuft, ist abhängig von der Schlüsselgröße und beträgt für AES‑128 zehn Runden, für 
-AES‑192 zwölf Runden und für AES‑256 vierzehn Runden. Die Rundenstruktur stellt das zentrale Element der algorithmischen Stärke von AES dar, da sie die nichtlinearen und linearen 
-Transformationen mehrfach kombiniert, um Vertraulichkeit und Diffusion zu gewährleisten.
+Data Encryption Standard (DES) standardisiert wurde. AES operiert auf einer festen Blockgröße* von 128 Bit und unterstützt die drei Schlüsselgrößen 128, 192 und 256 Bit. **bin mir bei der festen blockgröße unsicher
+Die Anzahl der Runden, die der Klartext bis zur entgültigen Verschlüsselung durchläuft, ist abhängig von der Schlüsselgröße und beträgt für den AES‑128 zehn Runden. ** würd ich weglassen, ist nicht relevant für unseren use case
+Die Rundenstruktur stellt das zentrale Element der algorithmischen Stärke des AES dar, da hier eine Kombination von nichtlinearen und linearen Transformationen stattfindet, um Vertraulichkeit und Diffusion zu gewährleisten.
 
-Die interne Darstellung des Zustands in AES manifestiert sich in Form eines 4×4-Byte-Arrays, das in der Fachliteratur häufig als "State" bezeichnet wird. Jede Runde, mit Ausnahme der 
-finalen Runde, umfasst vier aufeinanderfolgende Transformationen. Die folgenden Verfahren werden zur Analyse verwendet: SubBytes, ShiftRows, MixColumns und AddRoundKey. SubBytes ist 
-eine nichtlineare Substitution, die für jedes Byte des Zustands eine feste S‑Box anwendet. Die Konstruktion der S‑Box erfolgt so, dass sie starke nichtlineare Eigenschaften aufweist 
-und gegen lineare sowie differentielle Kryptoanalyse resistent ist. ShiftRows organisiert die Bytes innerhalb der Zeilen des Zustands neu, was dazu führt, dass die Byte-Positionen über 
-Spalten hinweg verteilt werden und die Diffusion erhöht wird. MixColumns ist eine lineare Transformation, die auf jede Spalte des Zustands als Vektoroperation in dem endlichen Körper 
-GF(2^8) angewendet wird. Die Transformation bewirkt, dass Änderungen an einem Byte auf mehrere Bytes der Spalte wirken. AddRoundKey kombiniert schließlich den Zustand mit einem 
-Rundenschlüssel durch bitweises XOR. Die Rundenschlüssel werden durch den Key Schedule aus dem ursprünglichen Schlüssel abgeleitet.
+Die interne Darstellung von Zuständen im AES, englisch "State", manifestiert sich in Form eines 4×4-Byte-Arrays.
+Jede Runde, mit Ausnahme der finalen, umfasst vier aufeinanderfolgende Transformationen, namentlich: SubBytes, ShiftRows, MixColumns und AddRoundKey.
+SubBytes stellt eine nichtlineare Substitution dar, welche jedes Byte des Zustands anhand einer festimplementierten S‑Box austauscht.
+Beispielsweise x -> y. **geh ich mehr ins detail, was passiert mathematisch?
+Die S-Box soll durch ihre Nichtlinearität den AES-Algorithmus gegen lineare, sowie differentielle Kryptoanalyse resistent machen. 
+ShiftRows organisiert die Bytes innerhalb der Zeilen des Zustands neu, was dazu führt, dass die Byte-Positionen über Spalten hinweg verteilt werden und die Diffusion erhöht wird.
+**schaubild hier
+MixColumns stellt eine lineare Transformation dar, welche auf jede Spalte des Zustands eine Vektoroperation in dem endlichen Körper GF(2^8) anwendet.
+**schaubild und halben satz mehr inhalt pls
+Die Transformation bewirkt, dass sich Änderungen an einem Byte auf mehrere Bytes der Spalte auswirken.
+AddRoundKey kombiniert schließlich den Zustand mit einem Rundenschlüssel durch bitweises XOR. 
+Die Rundenschlüssel werden zu Anfangs durch den Key Schedule aus dem ursprünglichen Schlüssel abgeleitet.
 
-Der sogenannte Key Schedule beschreibt ein deterministisches Verfahren zur Erzeugung der Rundenschlüssel aus dem ursprünglichen Schlüssel. Im vorliegenden Text werden Operationen wie 
-RotWord, SubWord (Anwendung der S‑Box auf ein Wort) und die XOR‑Verknüpfung mit Rundenkonstanten (Rcon) verwendet. Durch diese Schritte werden die Rundenschlüssel so transformiert, 
-dass sie für jede Runde eine andere, aber aus dem ursprünglichen Schlüssel deterministisch ableitbare Bitfolge liefern. Die Sicherheit des Key Schedule stellt einen signifikanten Aspekt 
-hinsichtlich der Gesamtsicherheit des Verfahrens dar, da Schwächen in der Schlüsselableitung die Effektivität von Angriffen potenziell beeinflussen können.
+Der sogenannte Key Schedule beschreibt ein deterministisches Verfahren zur Erzeugung der Rundenschlüssel aus dem ursprünglichen Schlüssel.
+Im vorliegenden Text werden Operationen wie RotWord, SubWord (Anwendung der S‑Box auf ein Wort) und die XOR‑Verknüpfung mit Rundenkonstanten (Rcon) verwendet.
+Durch diese Schritte werden die Rundenschlüssel so transformiert, dass sie für jede Runde eine andere, aber aus dem ursprünglichen Schlüssel deterministisch ableitbare Bitfolge liefern.
+Die Sicherheit des Key Schedule stellt einen signifikanten Aspekt hinsichtlich der Gesamtsicherheit des Verfahrens dar, da Schwächen in der Schlüsselableitung die Effektivität von Angriffen potenziell beeinflussen können. **und bei den anderen operationen nicht? lol
 
-In der praktischen Anwendung wird AES nicht als reiner Blockalgorithmus eingesetzt, sondern in Kombination mit Betriebsmodi, die den Umgang mit Datenströmen und längeren Nachrichten 
-regeln. Zu den gängigen Modi zählen ECB, CBC, CTR und GCM. Die einfache, aber unsichere Natur von ECB bei wiederholten Klartextblöcken steht im Gegensatz zur Reduktion von Mustern durch 
-die Verkettung mit einem Initialisierungsvektor bei CBC. Es konnte festgestellt werden, dass sowohl CTR als auch GCM Vorteile hinsichtlich der Parallelisierbarkeit bieten. Darüber hinaus 
-wurde bei GCM eine zusätzliche Authentifizierung identifiziert, die in modernen Anwendungen häufig gefordert wird. Die Wahl des Betriebsmodus hat signifikante Auswirkungen auf die 
-Sicherheitseigenschaften wie Integrität, Authentizität und Parallelisierbarkeit.
+In der praktischen Anwendung wird AES nicht als reiner Blockalgorithmus eingesetzt, sondern in Kombination mit Betriebsmodi, die den Umgang mit Datenströmen und längeren Nachrichten regeln.
+Zu den gängigen Modi zählen ECB, CBC, CTR und GCM. **würd ich rauslassen außer wir brauchen verzweifelt mehr text lol
+Die einfache, aber unsichere Natur von ECB bei wiederholten Klartextblöcken steht im Gegensatz zur Reduktion von Mustern durch die Verkettung mit einem Initialisierungsvektor bei CBC.
+Es konnte festgestellt werden, dass sowohl CTR als auch GCM Vorteile hinsichtlich der Parallelisierbarkeit bieten.
+Darüber hinaus wurde bei GCM eine zusätzliche Authentifizierung identifiziert**????, die in modernen Anwendungen häufig gefordert wird.
+Die Wahl des Betriebsmodus' hat signifikante Auswirkungen auf die Sicherheitseigenschaften wie Integrität, Authentizität, sowie den Performanceaspekt der Parallelisierbarkeit.
 
-Aus implementierungstechnischer Perspektive existieren verschiedene Varianten von AES-Implementierungen, die unterschiedliche Kompromisse in Bezug auf die Faktoren Fläche, Durchsatz und 
-Resilienz gegenüber Seitenkanalangriffen eingehen. Softwareimplementierungen nutzen in vielen Fällen Lookup-Tabellen (T-Tables) oder hardwarebeschleunigende Instruktionen wie AES-NI, um 
-hohe Durchsatzraten zu erreichen. Im Allgemeinen wird zwischen drei verschiedenen Hardwareimplementierungen unterschieden, nämlich den iterativen, den pipelined und den vollständig 
-unrolled Architekturen. Iterative Implementierungen verwenden eine geringe Menge an Logik, die über mehrere Takte hinweg wiederholt wird, und zeichnen sich durch eine hohe 
-Flächeneffizienz aus. Im Gegensatz dazu replizieren vollständig unrolled Implementierungen jede Runde, um einen maximalen Durchsatz zu erzielen. Dies hat jedoch deutlich höhere 
-Flächenanforderungen zur Folge. Pipelining stellt einen Kompromiss dar, indem es die Runden in Stufen aufteilt, die dazu in der Lage sind, verschiedene Blöcke simultan zu verarbeiten.
+Aus implementierungstechnischer Perspektive existieren verschiedene Varianten vom AES, die unterschiedliche Kompromisse in Bezug auf die Faktoren Fläche, Durchsatz und Resilienz**wird das so geschrieben? gegenüber Seitenkanalangriffen bieten.
+Softwareimplementierungen nutzen in vielen Fällen Lookup-Tabellen (T-Tables) oder hardwarebeschleunigende Instruktionen wie AES-NI, um hohe Durchsatzraten zu erreichen.
+Im Allgemeinen wird zwischen drei verschiedenen Hardwareimplementierungen unterschieden, den iterativen, den pipelined und den vollständig unrolled Architekturen.
+Iterative Implementierungen verwenden eine geringe Menge an Logik, die über mehrere Takte hinweg wiederholt wird, und zeichnen sich durch eine hohe Flächeneffizienz aus.
+Im Gegensatz dazu replizieren vollständig unrolled Implementierungen jede Runde, um einen maximalen Durchsatz zu erzielen.
+Dies hat jedoch deutlich höhere Flächenanforderungen zur Folge.
+Pipelining stellt einen Kompromiss dar, indem es die Runden in Stufen aufteilt, die dazu in der Lage sind verschiedene Blöcke simultan zu verarbeiten.
 
-Sicherheitsrelevante Aspekte der Implementierung sind dabei von zentraler Bedeutung. AES selbst wird als kryptographisch sicher angesehen, sofern Schlüssel und Algorithmus korrekt 
-verwendet werden. Allerdings sind praktische Implementierungen anfällig für verschiedene Arten von Angriffen, wie beispielsweise Leistungsanalyse, zeitliche Seitenkanäle oder 
-elektromagnetische Leckagen. Gegenmaßnahmen, die zu ergreifen sind, umfassen Maskierungstechniken, konstante Laufzeitimplementierungen, Redundanz und Fehlererkennungsmechanismen. 
+Sicherheitsrelevante Aspekte der Implementierung sind dabei von zentraler Bedeutung.
+AES selbst wird als kryptographisch sicher angesehen, sofern Schlüssel und Algorithmus korrekt verwendet werden.
+Allerdings sind praktische Implementierungen anfällig für verschiedene Arten von Angriffen, wie beispielsweise Leistungsanalyse, zeitliche Seitenkanäle, oder elektromagnetische Leckagen. **ist das ein wort?? ich hau mich eckig ach meinst du Leakage? xDDD
+Gegenmaßnahmen, die zu ergreifen sind, umfassen Maskierungstechniken, konstante Laufzeitimplementierungen, Redundanz und Fehlererkennungsmechanismen. 
 Darüber hinaus sind Fehlerinjektion und Fault Attacks eine reale Bedrohung, weshalb robuste Implementierungen Detektions- und Reaktionsmechanismen integrieren sollten.
 
-Zusammenfassend lässt sich festhalten, dass AES aufgrund seiner klaren mathematischen Struktur, der breiten Standardisierung und der vielfältigen Implementierungsoptionen sowohl in 
-Software als auch in Hardware eine zentrale Rolle in modernen Kryptosystemen einnimmt. Die Auswahl der konkreten Implementierungsstrategie hat dabei stets die Zielplattform, die 
-gewünschten Leistungskennzahlen und die Sicherheitsanforderungen zu berücksichtigen.
+Zusammenfassend lässt sich festhalten, dass AES aufgrund seiner festgehaltenen Sicherheit, der mathematischen Struktur, der öffentlich publizierten Standardisierung und der vielfältigen Implementierungsoptionen, in sowohl Software als auch in Hardware eine ideale Wahl für Kryptoverfahren darstellt. **bissl selbst das horn geblasen findest du nen besseres satzende?
+Die Auswahl der konkreten Implementierungsstrategie hat dabei stets die Zielplattform, die gewünschten Leistungskennzahlen und die Sicherheitsanforderungen zu berücksichtigen. **ka was das hier heißen soll das doch nur COPILOT filler oder?
