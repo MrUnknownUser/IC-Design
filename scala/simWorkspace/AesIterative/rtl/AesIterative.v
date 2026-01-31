@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.12.3    git head : 591e64062329e5e2e2b81f4d52422948053edb97
 // Component : AesIterative
-// Git hash  : 05f91743ff44074eef186e0b404d798d25a8da81
+// Git hash  : bcebea4df3186446c153eabef88c7e03ebf129dc
 
 `timescale 1ns/1ps
 
@@ -623,6 +623,16 @@ module AesIterative (
   wire       [7:0]    _zz__zz_stateReg_107_6;
   wire       [39:0]   _zz_stateReg_576;
   wire       [7:0]    _zz_stateReg_577;
+  wire       [7:0]    rcon_0;
+  wire       [7:0]    rcon_1;
+  wire       [7:0]    rcon_2;
+  wire       [7:0]    rcon_3;
+  wire       [7:0]    rcon_4;
+  wire       [7:0]    rcon_5;
+  wire       [7:0]    rcon_6;
+  wire       [7:0]    rcon_7;
+  wire       [7:0]    rcon_8;
+  wire       [7:0]    rcon_9;
   wire       [7:0]    sboxRom_0;
   wire       [7:0]    sboxRom_1;
   wire       [7:0]    sboxRom_2;
@@ -879,16 +889,6 @@ module AesIterative (
   wire       [7:0]    sboxRom_253;
   wire       [7:0]    sboxRom_254;
   wire       [7:0]    sboxRom_255;
-  wire       [7:0]    rcon_0;
-  wire       [7:0]    rcon_1;
-  wire       [7:0]    rcon_2;
-  wire       [7:0]    rcon_3;
-  wire       [7:0]    rcon_4;
-  wire       [7:0]    rcon_5;
-  wire       [7:0]    rcon_6;
-  wire       [7:0]    rcon_7;
-  wire       [7:0]    rcon_8;
-  wire       [7:0]    rcon_9;
   reg        [127:0]  stateReg;
   reg        [31:0]   roundKeyReg_0;
   reg        [31:0]   roundKeyReg_1;
@@ -13811,6 +13811,16 @@ module AesIterative (
     endcase
   end
 
+  assign rcon_0 = 8'h01;
+  assign rcon_1 = 8'h02;
+  assign rcon_2 = 8'h04;
+  assign rcon_3 = 8'h08;
+  assign rcon_4 = 8'h10;
+  assign rcon_5 = 8'h20;
+  assign rcon_6 = 8'h40;
+  assign rcon_7 = 8'h80;
+  assign rcon_8 = 8'h1b;
+  assign rcon_9 = 8'h36;
   assign sboxRom_0 = 8'h63;
   assign sboxRom_1 = 8'h7c;
   assign sboxRom_2 = 8'h77;
@@ -14067,16 +14077,6 @@ module AesIterative (
   assign sboxRom_253 = 8'h54;
   assign sboxRom_254 = 8'hbb;
   assign sboxRom_255 = 8'h16;
-  assign rcon_0 = 8'h01;
-  assign rcon_1 = 8'h02;
-  assign rcon_2 = 8'h04;
-  assign rcon_3 = 8'h08;
-  assign rcon_4 = 8'h10;
-  assign rcon_5 = 8'h20;
-  assign rcon_6 = 8'h40;
-  assign rcon_7 = 8'h80;
-  assign rcon_8 = 8'h1b;
-  assign rcon_9 = 8'h36;
   assign invSboxRom_0 = 8'h52;
   assign invSboxRom_1 = 8'h09;
   assign invSboxRom_2 = 8'h6a;
