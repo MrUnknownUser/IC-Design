@@ -52,9 +52,6 @@ class AesIterative extends Component {
     0x17,0x2B,0x04,0x7E,0xBA,0x77,0xD6,0x26,0xE1,0x69,0x14,0x63,0x55,0x21,0x0C,0x7D
   ).map(_.toInt)
 
-
-  val sboxRom = Vec(UInt(8 bits), 256)
-  for(i <- 0 until 256) sboxRom(i) := U(sboxTable(i), 8 bits)
   def sbox(b: UInt): UInt = sboxRom(b)
   def invSbox(b: UInt): UInt = invSboxRom(b)
 
@@ -64,6 +61,8 @@ class AesIterative extends Component {
     U(0x1B, 8 bits), U(0x36, 8 bits)
   )
 
+  val sboxRom = Vec(UInt(8 bits), 256)
+  for(i <- 0 until 256) sboxRom(i) := U(sboxTable(i), 8 bits)
   // Registers / state
   val stateReg = Reg(Bits(128 bits)) init(B(0, 128 bits))
   val roundKeyReg = Reg(Vec(UInt(32 bits), 4))
@@ -72,6 +71,7 @@ class AesIterative extends Component {
   val rconCounter = Reg(UInt(4 bits)) init(U(0))
   for(i <- 0 until 4) roundKeyReg(i) init(0)
 
+  // Decrypt vars
   val invSboxRom = Vec(UInt(8 bits), 256)
   val precomputeRunning = Reg(Bool) init(False) 
   val precomputeCounter = Reg(UInt(4 bits)) init(U(0))
