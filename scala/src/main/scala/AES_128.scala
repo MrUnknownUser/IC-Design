@@ -4,6 +4,7 @@ import spinal.lib._
 class AesIterative extends Component {
   val io = new Bundle {
     val start   = in Bool()
+    val decrypt = in Bool()
     val key     = in Bits(128 bits)
     val dataIn  = in Bits(128 bits)
     val dataOut = out Bits(128 bits)
@@ -145,9 +146,88 @@ class AesIterative extends Component {
   val rkBitsUsedComb = Bits(128 bits)
   rkBitsUsedComb := B(0, 128 bits)
 
+  // DECRIPTION
+  // inverse S-Box
+  val invSboxTable = Array(
+    0x52,0x09,0x6A,0xD5,0x30,0x36,0xA5,0x38,0xBF,0x40,0xA3,0x9E,0x81,0xF3,0xD7,0xFB,
+    0x7C,0xE3,0x39,0x82,0x9B,0x2F,0xFF,0x87,0x34,0x8E,0x43,0x44,0xC4,0xDE,0xE9,0xCB,
+    0x54,0x7B,0x94,0x32,0xA6,0xC2,0x23,0x3D,0xEE,0x4C,0x95,0x0B,0x42,0xFA,0xC3,0x4E,
+    0x08,0x2E,0xA1,0x66,0x28,0xD9,0x24,0xB2,0x76,0x5B,0xA2,0x49,0x6D,0x8B,0xD1,0x25,
+    0x72,0xF8,0xF6,0x64,0x86,0x68,0x98,0x16,0xD4,0xA4,0x5C,0xCC,0x5D,0x65,0xB6,0x92,
+    0x6C,0x70,0x48,0x50,0xFD,0xED,0xB9,0xDA,0x5E,0x15,0x46,0x57,0xA7,0x8D,0x9D,0x84,
+    0x90,0xD8,0xAB,0x00,0x8C,0xBC,0xD3,0x0A,0xF7,0xE4,0x58,0x05,0xB8,0xB3,0x45,0x06,
+    0xD0,0x2C,0x1E,0x8F,0xCA,0x3F,0x0F,0x02,0xC1,0xAF,0xBD,0x03,0x01,0x13,0x8A,0x6B,
+    0x3A,0x91,0x11,0x41,0x4F,0x67,0xDC,0xEA,0x97,0xF2,0xCF,0xCE,0xF0,0xB4,0xE6,0x73,
+    0x96,0xAC,0x74,0x22,0xE7,0xAD,0x35,0x85,0xE2,0xF9,0x37,0xE8,0x1C,0x75,0xDF,0x6E,
+    0x47,0xF1,0x1A,0x71,0x1D,0x29,0xC5,0x89,0x6F,0xB7,0x62,0x0E,0xAA,0x18,0xBE,0x1B,
+    0xFC,0x56,0x3E,0x4B,0xC6,0xD2,0x79,0x20,0x9A,0xDB,0xC0,0xFE,0x78,0xCD,0x5A,0xF4,
+    0x1F,0xDD,0xA8,0x33,0x88,0x07,0xC7,0x31,0xB1,0x12,0x10,0x59,0x27,0x80,0xEC,0x5F,
+    0x60,0x51,0x7F,0xA9,0x19,0xB5,0x4A,0x0D,0x2D,0xE5,0x7A,0x9F,0x93,0xC9,0x9C,0xEF,
+    0xA0,0xE0,0x3B,0x4D,0xAE,0x2A,0xF5,0xB0,0xC8,0xEB,0xBB,0x3C,0x83,0x53,0x99,0x61,
+    0x17,0x2B,0x04,0x7E,0xBA,0x77,0xD6,0x26,0xE1,0x69,0x14,0x63,0x55,0x21,0x0C,0x7D
+  ).map(_.toInt)
+
+  val invSboxRom = Vec(UInt(8 bits), 256)
+  for(i <- 0 until 256) invSboxRom(i) := U(invSboxTable(i), 8 bits)
+  def invSbox(b: UInt): UInt = invSboxRom(b)
+
+  // GF helpers for inverse MixColumns
+  def mul4(x: UInt) = mul2(mul2(x))
+  def mul8(x: UInt) = mul2(mul4(x))
+  def mul9(x: UInt)  = mul8(x) ^ x
+  def mul11(x: UInt) = mul8(x) ^ mul2(x) ^ x
+  def mul13(x: UInt) = mul8(x) ^ mul4(x) ^ x
+  def mul14(x: UInt) = mul8(x) ^ mul4(x) ^ mul2(x)
+
+  def invMixColumn(b0: UInt, b1: UInt, b2: UInt, b3: UInt): Vec[UInt] = {
+    val y = Vec(UInt(8 bits), 4)
+    y(0) := (mul14(b0) ^ mul11(b1) ^ mul13(b2) ^ mul9(b3))
+    y(1) := (mul9(b0)  ^ mul14(b1) ^ mul11(b2) ^ mul13(b3))
+    y(2) := (mul13(b0) ^ mul9(b1)  ^ mul14(b2) ^ mul11(b3))
+    y(3) := (mul11(b0) ^ mul13(b1) ^ mul9(b2)  ^ mul14(b3))
+    y
+  }
+
+  // inverse key schedule
+  def inverseRoundKey(currKey: Vec[UInt], rconVal: UInt): Vec[UInt] = {
+    val k0 = currKey(0); val k1 = currKey(1)
+    val k2 = currKey(2); val k3 = currKey(3)
+
+    val prev3 = k3 ^ k2
+    val prev2 = k2 ^ k1
+    val prev1 = k1 ^ k0
+
+    val rot = (prev3(23 downto 0) ## prev3(31 downto 24)).asUInt
+    val s0 = sbox(rot(31 downto 24)); val s1 = sbox(rot(23 downto 16))
+    val s2 = sbox(rot(15 downto 8 )); val s3 = sbox(rot(7  downto 0 ))
+    val subw = (s0 ## s1 ## s2 ## s3).asUInt
+    val rconWord = (rconVal ## U(0, 24 bits)).asUInt
+    val temp = subw ^ rconWord
+    val prev0 = k0 ^ temp
+    Vec(prev0, prev1, prev2, prev3)
+  }
+
 
   // Control
-  when(io.start && !running) {
+  val precomputeRunning = Reg(Bool) init(False) 
+  val precomputeCounter = Reg(UInt(4 bits)) init(U(0)) 
+  val initKeyWords = Vec(UInt(32 bits), 4) 
+  for(i <- 0 until 4) initKeyWords(i) := U(0, 32 bits)
+
+  // sichtbar machen: komb. Signale für Decrypt‑Zwischenschritte
+  // Kombinatorisch (keine RegInit)
+  val invShifted = Vec(UInt(8 bits), 16)
+  val invSub     = Vec(UInt(8 bits), 16)
+  val invMixed   = Vec(UInt(8 bits), 16)
+
+  // Defaults (immer setzen, außerhalb von when)
+  for(i <- 0 until 16){
+    invShifted(i) := U(0, 8 bits)
+    invSub(i)     := U(0, 8 bits)
+    invMixed(i)   := U(0, 8 bits)
+  }
+
+  when(io.start && !running && !io.decrypt) {
     running := True
 
     val initWords  = bitsToWords(io.key)
@@ -161,7 +241,7 @@ class AesIterative extends Component {
     roundCount  := U(0)
     rconCounter := U(0)
 
-  }.elsewhen(running) {
+  }.elsewhen(running && !io.decrypt) {
     val m = bitsToMatrix(stateReg)
 
     // SubBytes
@@ -231,6 +311,96 @@ class AesIterative extends Component {
     } otherwise {
       roundCount := roundCount + 1
       when(rconCounter < U(9)) { rconCounter := rconCounter + 1 }
+    }
+  }.elsewhen(!running && !precomputeRunning && io.decrypt) { 
+    // start precompute to get roundKey_10 
+    val initWords = bitsToWords(io.key) 
+    for(i <- 0 until 4) initKeyWords(i) := initWords(i) 
+    roundKeyReg := initWords 
+    precomputeRunning := True 
+    precomputeCounter := U(0) 
+    rconCounter := U(0) 
+  }.elsewhen(precomputeRunning) { 
+    // compute next round key each cycle until we have roundKey_10 
+    val next = computeRoundKey(roundKeyReg, rcon(precomputeCounter)) 
+    roundKeyReg := next 
+    precomputeCounter := precomputeCounter + 1 
+    when(precomputeCounter === U(9)) { 
+      // after this cycle next is roundKey_10 
+      precomputeRunning := False 
+      roundKeyReg := next 
+      // initial state for decrypt: dataIn ^ roundKey_10 
+      val rkBits = matrixToBits(keyWordsToMatrix(next)) 
+      stateReg := io.dataIn ^ rkBits 
+      running := True 
+      roundCount := U(0) 
+      rconCounter := U(9) // for inverse schedule 
+    }
+  }.elsewhen(running && io.decrypt) {
+    val m = bitsToMatrix(stateReg)
+
+    // InvShiftRows + InvSubBytes
+    //val invShifted = Vec(UInt(8 bits), 16)
+    invShifted(idx(0,0)) := m(idx(0,0))
+    invShifted(idx(1,0)) := m(idx(1,0))
+    invShifted(idx(2,0)) := m(idx(2,0))
+    invShifted(idx(3,0)) := m(idx(3,0))
+    invShifted(idx(0,1)) := m(idx(3,1))
+    invShifted(idx(1,1)) := m(idx(0,1))
+    invShifted(idx(2,1)) := m(idx(1,1))
+    invShifted(idx(3,1)) := m(idx(2,1))
+    invShifted(idx(0,2)) := m(idx(2,2))
+    invShifted(idx(1,2)) := m(idx(3,2))
+    invShifted(idx(2,2)) := m(idx(0,2))
+    invShifted(idx(3,2)) := m(idx(1,2))
+    invShifted(idx(0,3)) := m(idx(1,3))
+    invShifted(idx(1,3)) := m(idx(2,3))
+    invShifted(idx(2,3)) := m(idx(3,3))
+    invShifted(idx(3,3)) := m(idx(0,3))
+
+    //val invSub = Vec(UInt(8 bits), 16)
+    for(i <- 0 until 16) invSub(i) := invSbox(invShifted(i))
+
+    // compute previous round key from current round key (inverse schedule) 
+    val prevRoundKey = inverseRoundKey(roundKeyReg, rcon(rconCounter)) 
+    val rkBitsUsed = matrixToBits(keyWordsToMatrix(prevRoundKey)) // Apply AddRoundKey first (on invSub), then InvMixColumns except for final decrypt round 
+    val afterAddBits = matrixToBits(invSub) ^ rkBitsUsed 
+    val afterAddMat = bitsToMatrix(afterAddBits) // prepare invMixed 
+    for(i <- 0 until 16) invMixed(i) := U(0, 8 bits) // Use rconCounter==0 to detect last decrypt round (when prevRoundKey == rk0) 
+    when(rconCounter === U(0)) { // last decrypt round: no InvMixColumns, pass-through after AddRoundKey 
+    for(i <- 0 until 16) 
+      invMixed(i) := afterAddMat(i) 
+    } otherwise { 
+      def invMixCol(c: Int) = { 
+        val y = invMixColumn( 
+          afterAddMat(idx(c,0)), 
+          afterAddMat(idx(c,1)), 
+          afterAddMat(idx(c,2)), 
+          afterAddMat(idx(c,3)) 
+        ) 
+        invMixed(idx(c,0)) := y(0) 
+        invMixed(idx(c,1)) := y(1) 
+        invMixed(idx(c,2)) := y(2) 
+        invMixed(idx(c,3)) := y(3) 
+      } 
+      invMixCol(0); 
+      invMixCol(1); 
+      invMixCol(2); 
+      invMixCol(3) 
+    } 
+    // write back state and update key 
+    stateReg := matrixToBits(invMixed)
+
+    // update current round key to prev (for next iteration)
+    roundKeyReg := prevRoundKey
+
+    when(roundCount === U(10)) {
+      running := False
+      io.done := True
+      io.dataOut := stateReg
+    } otherwise {
+      roundCount := roundCount + 1
+      when(rconCounter > U(0)) { rconCounter := rconCounter - 1 }
     }
   }
 }
