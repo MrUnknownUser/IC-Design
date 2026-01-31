@@ -11,9 +11,19 @@ var CARD_A_ID  = 128'Hbbe8278a67f960605adafd6f63cf7ba7;
 // Instantiate SPI Connection
 module CMAC_HANDSHAKE ();
     //KEY_CARD Instructions
-    var AUTH_INIT = 8'H10;
-    var AUTH      = 8'H11;
-    var GET_ID    = 8'H12;
+    logic AUTH_INIT = 8'H10;
+    logic AUTH      = 8'H11;
+    logic GET_ID    = 8'H12;
+
+    // Key Necessities
+    logic [127:0] callback = 0;
+    logic callback_valid = 1'b0;
+    logic [63:0] challenge = 0;
+    logic [127:0] eph_key = 0;
+    logic [127:0] encrypted_eph_key = 0;
+    logic [63:0] plain_challenge = 0;
+    logic [63:0] own_challenge = 0;
+    
 
     parameter SPI_MODE = 0;           // CPOL = 0; CPHA = 0
     parameter CLKS_PER_HALF_BIT = 5;  // 6.25 MHz
@@ -94,14 +104,81 @@ module CMAC_HANDSHAKE ();
              */
             // send AUTH_INIT to KEY_CARD
             SendSingleByte(AUTH_INIT);
-            var challenge = w_Master_RX_Byte;  // receive 16 Byte encrypted Challenge 
+            // somehow fill all 16 bytes of challenge with received callbacks
 
+
+            logic callback_valid = 1'b0;
+
+            // Capture incoming bytes and assemble into 16-bit word (MSB first)
+            always @(posedge r_Clk) 
+                begin
+                    callback_valid <= 1'b0;
+                    // default: no new full word this cycle
+                    if (w_Master_RX_DV) 
+                    begin 
+                        case (w_Master_RX_Count) 
+                         0: callback[127:120] <= w_Master_RX_Byte;
+                         1: callback[119:112] <= w_Master_RX_Byte;
+                         2: callback[111:104] <= w_Master_RX_Byte;
+                         3: callback[103:96] <= w_Master_RX_Byte;
+                         4: callback[95:88] <= w_Master_RX_Byte;
+                         5: callback[87:80] <= w_Master_RX_Byte;
+                         6: callback[79:72] <= w_Master_RX_Byte;
+                         7: callback[71:64] <= w_Master_RX_Byte;
+                         8: callback[63:56] <= w_Master_RX_Byte;
+                         9: callback[55:48] <= w_Master_RX_Byte;
+                        10: callback[47:40] <= w_Master_RX_Byte;
+                        11: callback[39:32] <= w_Master_RX_Byte;
+                        12: callback[31:24] <= w_Master_RX_Byte;
+                        13: callback[23:16] <= w_Master_RX_Byte;
+                        14: callback[15:8] <= w_Master_RX_Byte;
+                        15: begin callback[7:0] <= w_Master_RX_Byte;
+                            callback_valid <= 1'b1; // full 128-bit word ready 
+                            end 
+                        default: ; // ignore extra bytes 
+                        endcase 
+                    end
+                end
+
+
+
+            assign callback = w_Master_RX_Byte;  // receive 16 Byte encrypted Challenge 
             // decrypt challenge -> only first 8 bytes are relevant, rest is padding
+            assign plain_callback = AES_DEC(callback);
+            assign challenge = plain_callback[15:8];
 
-            // encrypt received challenge, send back to KEY_CARD
+     
 
-            //var plain_challenge = AES_DEC(challenge)
-            //send_plain_challenge()
+
+            // generate own 8 byte challenge
+            assign own_challenge = generate_challenge(128);
+            
+            // concatenate challenges -> store as eph_key (session key)
+            assign eph_key = {challenge, own_challenge};
+
+            // encrypt eph_key and send back to KEY_CARD
+            assign encrypted_eph_key = AES_ENC(eph_key);
+            r_Master_TX_Count = 128;
+
+            SendSingleByte(encrypted_eph_key[127:120]);
+            SendSingleByte(encrypted_eph_key[119:112]);
+            SendSingleByte(encrypted_eph_key[111:104]);
+            SendSingleByte(encrypted_eph_key[103:96]);
+            SendSingleByte(encrypted_eph_key[95:88]);
+            SendSingleByte(encrypted_eph_key[87:80]);
+            SendSingleByte(encrypted_eph_key[79:72]);
+            SendSingleByte(encrypted_eph_key[71:64]);
+            SendSingleByte(encrypted_eph_key[63:56]);
+            SendSingleByte(encrypted_eph_key[55:48]);
+            SendSingleByte(encrypted_eph_key[47:40]);
+            SendSingleByte(encrypted_eph_key[39:32]);
+            SendSingleByte(encrypted_eph_key[31:24]);
+            SendSingleByte(encrypted_eph_key[23:16]);
+            SendSingleByte(encrypted_eph_key[15:8]);
+            SendSingleByte(encrypted_eph_key[7:0]);
+
+
+
 
             //Fragen
             /*
