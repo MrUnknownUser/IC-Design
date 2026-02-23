@@ -100,9 +100,10 @@ class AesIterative extends Component {
   def idx(col: Int, row: Int) = col*4 + row
 
   def xtime(x: UInt): UInt = {
-    val shifted = (x << 1)(7 downto 0)
-    val msb     = x.msb
-    msb ? (shifted ^ U(0x1b, 8 bits)) | shifted
+    // 8-bit shift ohne 9-bit Zwischenvektor
+    val shifted = (x(6 downto 0) ## U(0, 1 bits)).asUInt
+    val reduced = shifted ^ U(0x1b, 8 bits)
+    Mux(x.msb, reduced, shifted)
   }
   def mul2(x: UInt) = xtime(x)
   def mul3(x: UInt) = xtime(x) ^ x
@@ -167,11 +168,11 @@ class AesIterative extends Component {
   }
 
   // combi wires with Default (always defined)
-  val newStateComb = Bits(128 bits)
-  newStateComb := B(0, 128 bits)
+  // val newStateComb = Bits(128 bits)
+  // newStateComb := B(0, 128 bits)
 
-  val rkBitsUsedComb = Bits(128 bits)
-  rkBitsUsedComb := B(0, 128 bits)
+  // val rkBitsUsedComb = Bits(128 bits)
+  // rkBitsUsedComb := B(0, 128 bits)
 
   // DECRIPTION
   // GF helpers for inverse MixColumns
@@ -273,12 +274,12 @@ class AesIterative extends Component {
     }
 
     val newState = matrixToBits(mixed)
-    newStateComb := newState
+    //newStateComb := newState
 
     // Key schedule
     val nextRoundKey = computeRoundKey(roundKeyReg, rcon(rconCounter))
     val rkBitsUsed = matrixToBits(keyWordsToMatrix(nextRoundKey))
-    rkBitsUsedComb := rkBitsUsed
+    //rkBitsUsedComb := rkBitsUsed
 
     // compute and apply AddRoundKey
     val stateComb = newState ^ rkBitsUsed
