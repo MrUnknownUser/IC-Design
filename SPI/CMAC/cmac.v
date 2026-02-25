@@ -1,5 +1,7 @@
 // INCLUDES
 `include "SPI_Master.v"
+`include "asg_64_bit.v"
+
 
 
 
@@ -9,7 +11,10 @@ var CARD_A_ID  = 128'Hbbe8278a67f960605adafd6f63cf7ba7;
 
 
 // Instantiate SPI Connection
-module CMAC_HANDSHAKE ();
+module CMAC_HANDSHAKE (
+            input logic clk, 
+            input logic reset,
+            );
     //KEY_CARD Instructions
     logic AUTH_INIT = 8'H10;
     logic AUTH      = 8'H11;
@@ -116,6 +121,7 @@ module CMAC_HANDSHAKE ();
                     // default: no new full word this cycle
                     if (w_Master_RX_DV) 
                     begin 
+                        // receive 16 Byte encrypted Challenge 
                         case (w_Master_RX_Count) 
                          0: callback[127:120] <= w_Master_RX_Byte;
                          1: callback[119:112] <= w_Master_RX_Byte;
@@ -132,17 +138,15 @@ module CMAC_HANDSHAKE ();
                         12: callback[31:24] <= w_Master_RX_Byte;
                         13: callback[23:16] <= w_Master_RX_Byte;
                         14: callback[15:8] <= w_Master_RX_Byte;
-                        15: begin callback[7:0] <= w_Master_RX_Byte;
+                        15: callback[7:0] <= w_Master_RX_Byte;
+                        begin 
                             callback_valid <= 1'b1; // full 128-bit word ready 
-                            end 
+                        end 
                         default: ; // ignore extra bytes 
                         endcase 
                     end
                 end
 
-
-
-            assign callback = w_Master_RX_Byte;  // receive 16 Byte encrypted Challenge 
             // decrypt challenge -> only first 8 bytes are relevant, rest is padding
             assign plain_callback = AES_DEC(callback);
             assign challenge = plain_callback[15:8];
@@ -151,10 +155,25 @@ module CMAC_HANDSHAKE ();
 
 
             // generate own 8 byte challenge
-            assign own_challenge = generate_challenge(128);
+            logic enable_sample = 1'b1;
+            logic [63:0] own_challenge = 6'b0;
+            logic sampled_done = 1'b0;
+
+            asg_64_bit u_ASG (
+                clk,
+                reset,
+                enable_sample,
+                own_challenge,
+                sampled_done;
+            );
+
+            // do we have to wait 64 clock cycles?
+            //repeat(64) @(posedge r_Clk);
+
+            
             
             // concatenate challenges -> store as eph_key (session key)
-            assign eph_key = {challenge, own_challenge};
+            assign eph_key <= {challenge, own_challenge};
 
             // encrypt eph_key and send back to KEY_CARD
             assign encrypted_eph_key = AES_ENC(eph_key);
@@ -223,3 +242,5 @@ module CMAC_HANDSHAKE ();
 // AES Mode: AES-128 ECB, no padding
 // no padding: input must be devisible into 16Byte Blocks
 // ECB: electronic code block - no chaining, every 16 byte block gets encrypted with the same key seperately
+        end
+endmodule
