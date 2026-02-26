@@ -1,0 +1,7 @@
+`verilator_config
+lint_off -rule DECLFILENAME
+lint_off -rule EOFNEWLINE
+lint_off -rule UNDRIVEN -file "/home/bob/Schreibtisch/IC-Design/ihp-sg13g2-librelane-template/librelane/runs/RUN_2026-02-24_20-21-54/tmp/6cdad84d8bf74cb593026bb8e9b31e40.bb.v"
+lint_off -rule UNUSEDSIGNAL -file "/home/bob/Schreibtisch/IC-Design/ihp-sg13g2-librelane-template/librelane/runs/RUN_2026-02-24_20-21-54/tmp/6cdad84d8bf74cb593026bb8e9b31e40.bb.v"
+lint_off -rule UNDRIVEN -file "/home/bob/Schreibtisch/IC-Design/ihp-sg13g2-librelane-template/librelane/runs/RUN_2026-02-24_20-21-54/tmp/f97dee6553554569a658422cae9b7328.bb.v"
+lint_off -rule UNUSEDSIGNAL -file "/home/bob/Schreibtisch/IC-Design/ihp-sg13g2-librelane-template/librelane/runs/RUN_2026-02-24_20-21-54/tmp/f97dee6553554569a658422cae9b7328.bb.v"

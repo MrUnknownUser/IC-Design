@@ -1,0 +1,1 @@
+openroad -exit -no_splash -metrics /home/bob/Schreibtisch/IC-Design/ihp-sg13g2-librelane-template/librelane/runs/RUN_2026-02-24_20-21-54/13-openroad-floorplan/or_metrics_out.json /nix/store/dr1cxzf7rckkyr37z3qwibnb0f8hkz6s-python3-3.13.9-env/lib/python3.13/site-packages/librelane/scripts/openroad/floorplan.tcl
