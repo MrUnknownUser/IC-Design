@@ -6,17 +6,17 @@
 
 module ASG_TESTING ();
   
-    // Intialize ASG variables
-    wire [1:0] loadIt = 2'b0;
-    wire       load;
-    wire       enable = 1'b1;
-    wire       newBit = 1'b0;  // ASG output
-    logic      clk = 1'b0;
-    wire       reset = 1'b0;
+    // Intialize ASG variables (careful! signals (hence wires and registers!)
+    logic [1:0] loadIt = 2'b0;
+    logic       load = 1'b0;
+    logic       enable = 1'b1;
+    wire        newBit;  // ASG output
+    logic       clk = 1'b0;
+    logic       reset = 1'b0;
   
     // Clock Generators:
   always #(2) clk = ~clk;
-
+  
     ASG asg1 (
         loadIt,
         load,
@@ -25,17 +25,116 @@ module ASG_TESTING ();
         clk,
         reset
     );
+
   logic [5:0] count; // 6 Bit counter: 0..63 
   logic [63:0] own_challenge = 6'b0;
   logic sampling = 1'b0;
   logic sampled_done = 1'b0;
   logic enable_sample = 1'b1;
-  
-    task gen_bit();
-      @(posedge clk);
-      own_challenge <= {own_challenge[62:0], newBit};
-    endtask
-  
+    
+  initial begin
+        // Assert reset
+		reset <= 1'b1;
+        @(posedge clk);
+        
+        // Deassert reset
+        reset <= 1'b0;
+        @(posedge clk);
+
+    	//
+        // fill R1 with zeroes
+    	repeat (31) begin
+            loadIt <= 2'b01;
+    	    enable <= 1'b1;
+    	    load <= 1'b0;
+            @(posedge clk);
+        end
+    	//
+        // seed R1 with b'11101
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	// fill R2 with zeroes
+        repeat (127) begin
+        	loadIt <= 2'b10;
+        	enable <= 1'b1;
+    	    load <= 1'b0;
+            @(posedge clk);
+        end
+    
+    	// seed R2 with b'11010
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+    	
+    	// fill R3 with zeroes
+        repeat (89) begin
+        	loadIt <= 2'b11;
+        	enable <= 1'b1;
+    	    load <= 1'b1;
+    	    @(posedge clk);
+        end 
+        
+      	// seed R3 with many one's
+    	repeat (60) begin
+    		loadIt <= 2'b11;
+    		enable <= 1'b1;
+    		load <= 1'b1;
+    		#1;
+    	end
+        
+        // Stop loading
+        loadIt <= 2'b00;
+      	load <= 1'b0;
+        #1;
+
+        // Enable the ASG
+        enable <= 1'b1;
+    end
+
   	always_ff @(posedge clk) 
         begin 
             if (reset) 
@@ -82,9 +181,7 @@ module ASG_TESTING ();
       $dumpfile("dump.vcd"); 
       $dumpvars;
       
-      repeat(64) @(posedge clk);
-
-      
+      repeat(10000) @(posedge clk);
       
       // Test generating pseudo random bits
       //gen_bit();
@@ -96,3 +193,4 @@ module ASG_TESTING ();
     end
 
 endmodule
+

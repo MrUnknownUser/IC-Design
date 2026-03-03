@@ -56,3 +56,4 @@ module ASG (
   assign newBit = (R2_newBit ^ R3_newBit);
 
 endmodule
+

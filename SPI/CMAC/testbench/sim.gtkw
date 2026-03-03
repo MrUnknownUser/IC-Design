@@ -1,0 +1,102 @@
+[*]
+[*] GTKWave Analyzer v3.4.0 (w)1999-2022 BSI
+[*] Fri Feb 27 22:12:21 2026
+[*]
+[dumpfile] "/Users/streit/src/verilog/ASG/dump.vcd"
+[dumpfile_mtime] "Fri Feb 27 22:03:30 2026"
+[dumpfile_size] 35294
+[savefile] "/Users/streit/sim.gtkw"
+[timestart] 0
+[size] 2544 1292
+[pos] 93 0
+*-13.000000 12490 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] ASG_TESTING.
+[treeopen] ASG_TESTING.asg1.
+[sst_width] 253
+[signals_width] 356
+[sst_expanded] 1
+[sst_vpaned_height] 400
+@800200
+-ASG
+@28
+[color] 1
+ASG_TESTING.asg1.clk
+[color] 1
+ASG_TESTING.asg1.newBit
+@1000200
+-ASG
+@800200
+-R1
+@28
+[color] 2
+ASG_TESTING.asg1.R1.enable
+@22
+[color] 2
+ASG_TESTING.asg1.R1.fsRegN[30:0]
+[color] 2
+ASG_TESTING.asg1.R1.fsReg[30:0]
+@28
+[color] 2
+ASG_TESTING.asg1.R1.genBit
+[color] 2
+ASG_TESTING.asg1.R1.load
+[color] 2
+ASG_TESTING.asg1.R1.load
+[color] 2
+ASG_TESTING.asg1.R1.loadIt
+[color] 2
+ASG_TESTING.asg1.R1.newBit
+[color] 2
+ASG_TESTING.asg1.R1.reset
+@1000200
+-R1
+@800200
+-R2
+@28
+[color] 3
+ASG_TESTING.asg1.R2.enable
+@22
+[color] 3
+ASG_TESTING.asg1.R2.fsRegN[126:0]
+[color] 3
+ASG_TESTING.asg1.R2.fsReg[126:0]
+@28
+[color] 3
+ASG_TESTING.asg1.R2.genBit
+[color] 3
+ASG_TESTING.asg1.R2.genBit
+[color] 3
+ASG_TESTING.asg1.R2.load
+[color] 3
+ASG_TESTING.asg1.R2.loadIt
+[color] 3
+ASG_TESTING.asg1.R2.newBit
+[color] 3
+ASG_TESTING.asg1.R2.reset
+@1000200
+-R2
+@800200
+-R3
+@28
+[color] 4
+ASG_TESTING.asg1.R3.enable
+@22
+[color] 4
+ASG_TESTING.asg1.R3.fsRegN[88:0]
+[color] 4
+ASG_TESTING.asg1.R3.fsReg[88:0]
+@28
+[color] 4
+ASG_TESTING.asg1.R3.genBit
+[color] 4
+ASG_TESTING.asg1.R3.load
+[color] 4
+ASG_TESTING.asg1.R3.loadIt
+[color] 4
+ASG_TESTING.asg1.R3.newBit
+[color] 4
+ASG_TESTING.asg1.R3.reset
+@1000200
+-R3
+[pattern_trace] 1
+[pattern_trace] 0
