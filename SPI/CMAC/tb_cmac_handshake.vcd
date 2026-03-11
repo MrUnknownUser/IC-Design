@@ -1,0 +1,248 @@
+$date
+	Tue Mar 10 13:36:36 2026
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1ps
+$end
+$scope module tb_cmac_handshake $end
+$var wire 1 ! o_SPI_MOSI $end
+$var wire 1 " o_SPI_Clk $end
+$var wire 1 # o_SPI_CS_n $end
+$var wire 1 $ lock_state $end
+$var reg 1 % clk $end
+$var reg 1 & i_SPI_MISO $end
+$var reg 1 ' in $end
+$var reg 1 ( rst $end
+$scope module dut $end
+$var wire 1 % clk $end
+$var wire 1 & i_SPI_MISO $end
+$var wire 1 ' in $end
+$var wire 1 ( rst $end
+$var wire 1 ) w_TX_Ready $end
+$var wire 1 * w_RX_DV $end
+$var wire 2 + w_RX_Count [1:0] $end
+$var wire 8 , w_RX_Byte [7:0] $end
+$var wire 1 ! o_SPI_MOSI $end
+$var wire 1 " o_SPI_Clk $end
+$var wire 1 # o_SPI_CS_n $end
+$var parameter 32 - MAX_BYTES_PER_CS $end
+$var parameter 3 . S0 $end
+$var parameter 3 / S1 $end
+$var parameter 3 0 S2 $end
+$var parameter 3 1 S3 $end
+$var parameter 3 2 S4 $end
+$var parameter 3 3 S5 $end
+$var reg 8 4 i_TX_Byte_reg [7:0] $end
+$var reg 2 5 i_TX_Count_reg [1:0] $end
+$var reg 1 6 i_TX_DV_reg $end
+$var reg 1 $ lock_state $end
+$var reg 1 7 next_lock_state $end
+$var reg 3 8 next_state [2:0] $end
+$var reg 128 9 rec_ID [127:0] $end
+$var reg 3 : state [2:0] $end
+$var reg 4 ; tx_idx [3:0] $end
+$var reg 4 < tx_len [3:0] $end
+$var reg 1 = valid_ID $end
+$scope module spi_inst $end
+$var wire 1 % i_Clk $end
+$var wire 1 ( i_Rst_L $end
+$var wire 1 & i_SPI_MISO $end
+$var wire 8 > i_TX_Byte [7:0] $end
+$var wire 2 ? i_TX_Count [1:0] $end
+$var wire 1 6 i_TX_DV $end
+$var wire 1 # o_SPI_CS_n $end
+$var wire 1 ) o_TX_Ready $end
+$var wire 1 @ w_Master_Ready $end
+$var wire 1 ! o_SPI_MOSI $end
+$var wire 1 " o_SPI_Clk $end
+$var wire 1 * o_RX_DV $end
+$var wire 8 A o_RX_Byte [7:0] $end
+$var parameter 32 B CLKS_PER_HALF_BIT $end
+$var parameter 2 C CS_INACTIVE $end
+$var parameter 32 D CS_INACTIVE_CLKS $end
+$var parameter 2 E IDLE $end
+$var parameter 32 F MAX_BYTES_PER_CS $end
+$var parameter 32 G SPI_MODE $end
+$var parameter 2 H TRANSFER $end
+$var reg 2 I o_RX_Count [1:0] $end
+$var reg 4 J r_CS_Inactive_Count [3:0] $end
+$var reg 1 K r_CS_n $end
+$var reg 2 L r_SM_CS [1:0] $end
+$var reg 2 M r_TX_Count [1:0] $end
+$scope module SPI_Master_Inst $end
+$var wire 1 % i_Clk $end
+$var wire 1 ( i_Rst_L $end
+$var wire 1 & i_SPI_MISO $end
+$var wire 8 N i_TX_Byte [7:0] $end
+$var wire 1 6 i_TX_DV $end
+$var wire 1 O w_CPHA $end
+$var wire 1 P w_CPOL $end
+$var parameter 32 Q CLKS_PER_HALF_BIT $end
+$var parameter 32 R SPI_MODE $end
+$var reg 8 S o_RX_Byte [7:0] $end
+$var reg 1 * o_RX_DV $end
+$var reg 1 " o_SPI_Clk $end
+$var reg 1 ! o_SPI_MOSI $end
+$var reg 1 @ o_TX_Ready $end
+$var reg 1 T r_Leading_Edge $end
+$var reg 3 U r_RX_Bit_Count [2:0] $end
+$var reg 1 V r_SPI_Clk $end
+$var reg 4 W r_SPI_Clk_Count [3:0] $end
+$var reg 5 X r_SPI_Clk_Edges [4:0] $end
+$var reg 3 Y r_TX_Bit_Count [2:0] $end
+$var reg 8 Z r_TX_Byte [7:0] $end
+$var reg 1 [ r_TX_DV $end
+$var reg 1 \ r_Trailing_Edge $end
+$upscope $end
+$upscope $end
+$upscope $end
+$scope task spi_slave_send_byte $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+$comment Show the parameter values. $end
+$dumpall
+b0 R
+b101 Q
+b1 H
+b0 G
+b10 F
+b0 E
+b1010 D
+b10 C
+b101 B
+b101 3
+b100 2
+b11 1
+b10 0
+b1 /
+b0 .
+b10 -
+$end
+#0
+$dumpvars
+x\
+x[
+bx Z
+bx Y
+bx X
+bx W
+xV
+bx U
+xT
+bx S
+0P
+0O
+bx N
+bx M
+bx L
+xK
+bx J
+bx I
+bx A
+x@
+bx ?
+bx >
+x=
+bx <
+bx ;
+bx :
+bx 9
+bx 8
+x7
+x6
+bx 5
+bx 4
+bx ,
+bx +
+x*
+x)
+0(
+0'
+1&
+0%
+x$
+x#
+x"
+x!
+$end
+#5000
+1)
+b0 8
+0=
+b0 5
+b0 ?
+b0 4
+b0 >
+b0 N
+07
+b0 W
+0V
+0\
+0T
+b0 X
+0@
+0[
+b0 Z
+b111 Y
+0!
+b111 U
+0*
+b0 ,
+b0 A
+b0 S
+0"
+b1010 J
+b0 M
+1#
+1K
+b0 L
+06
+1%
+#10000
+0%
+#15000
+b0 +
+b0 I
+0$
+b0 :
+1%
+#20000
+b0 <
+b0 ;
+0%
+1(
+#25000
+1@
+1%
+#30000
+0%
+#35000
+1%
+#40000
+0@
+0%
+0(
+#45000
+1)
+b1 ;
+b0 5
+b0 ?
+06
+1%
+#50000
+0%
+#55000
+1%
+#60000
+0%
+#65000
+b1 8
+1'
+1%
+#70000
+0%
+#75000

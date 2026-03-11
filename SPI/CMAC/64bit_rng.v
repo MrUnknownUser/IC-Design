@@ -23,7 +23,7 @@ module asg_64_bit (
     logic       clk = 1'b0;
     logic       reset = 1'b0;
 
-    always #(2) clk = ~clk;
+    //always #(2) clk = ~clk;
 
     ASG asg1 (
         loadIt,
