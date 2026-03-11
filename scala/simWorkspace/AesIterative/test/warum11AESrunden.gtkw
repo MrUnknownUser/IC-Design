@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Wed Mar 11 17:36:38 2026
+[*]
+[dumpfile] "/home/chschraa/IC-Design/scala/simWorkspace/AesIterative/test/wave.fst"
+[dumpfile_mtime] "Tue Mar  3 13:44:30 2026"
+[dumpfile_size] 6296
+[savefile] "/home/chschraa/IC-Design/scala/simWorkspace/AesIterative/test/warum11AESrunden.gtkw"
+[timestart] 521
+[size] 1854 935
+[pos] -27 -24
+*-3.000000 530 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 278
+[signals_width] 429
+[sst_expanded] 1
+[sst_vpaned_height] 274
+@28
+TOP.clk
+TOP.io_busy
+TOP.io_start
+TOP.reset
+@22
+TOP.io_key[127:0]
+@28
+TOP.io_done
+@23
+TOP.io_dataOut[127:0]
+@28
+TOP.io_decrypt
+@22
+TOP.io_dataIn[127:0]
+[pattern_trace] 1
+[pattern_trace] 0

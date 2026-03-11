@@ -1,0 +1,106 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Wed Mar 11 17:38:19 2026
+[*]
+[dumpfile] "/home/chschraa/IC-Design/SPI/CMAC/dump.vcd"
+[dumpfile_mtime] "Wed Mar 11 17:08:22 2026"
+[dumpfile_size] 1343856167
+[savefile] "/home/chschraa/IC-Design/SPI/CMAC/cmac-tester-withAES.gtkw"
+[timestart] 734230
+[size] 1854 935
+[pos] -1 -1
+*-13.700000 770000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] CMAC_TESTING.
+[treeopen] CMAC_TESTING.cmac1.
+[sst_width] 278
+[signals_width] 479
+[sst_expanded] 1
+[sst_vpaned_height] 274
+@28
+CMAC_TESTING.clk
+CMAC_TESTING.in
+CMAC_TESTING.rst
+CMAC_TESTING.o_SPI_Clk
+@c00028
+CMAC_TESTING.cmac1.state[2:0]
+@28
+(0)CMAC_TESTING.cmac1.state[2:0]
+(1)CMAC_TESTING.cmac1.state[2:0]
+(2)CMAC_TESTING.cmac1.state[2:0]
+@1401200
+-group_end
+@c00022
+CMAC_TESTING.cmac1.tx_idx[3:0]
+@28
+(0)CMAC_TESTING.cmac1.tx_idx[3:0]
+(1)CMAC_TESTING.cmac1.tx_idx[3:0]
+(2)CMAC_TESTING.cmac1.tx_idx[3:0]
+(3)CMAC_TESTING.cmac1.tx_idx[3:0]
+@1401200
+-group_end
+@c00022
+CMAC_TESTING.cmac1.tx_len[3:0]
+@28
+(0)CMAC_TESTING.cmac1.tx_len[3:0]
+(1)CMAC_TESTING.cmac1.tx_len[3:0]
+(2)CMAC_TESTING.cmac1.tx_len[3:0]
+(3)CMAC_TESTING.cmac1.tx_len[3:0]
+@1401200
+-group_end
+@c00022
+CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+@28
+(0)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(1)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(2)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(3)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(4)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(5)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(6)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+(7)CMAC_TESTING.cmac1.w_RX_Byte[7:0]
+@1401200
+-group_end
+@c00028
+CMAC_TESTING.cmac1.w_RX_Count[1:0]
+@28
+(0)CMAC_TESTING.cmac1.w_RX_Count[1:0]
+(1)CMAC_TESTING.cmac1.w_RX_Count[1:0]
+@1401200
+-group_end
+@800028
+CMAC_TESTING.cmac1.received_byte_count[1:0]
+@28
+(0)CMAC_TESTING.cmac1.received_byte_count[1:0]
+(1)CMAC_TESTING.cmac1.received_byte_count[1:0]
+@1001200
+-group_end
+@28
+CMAC_TESTING.cmac1.spi_inst.r_CS_n
+CMAC_TESTING.cmac1.w_RX_DV
+@420
+CMAC_TESTING.cmac1.S0
+CMAC_TESTING.cmac1.S0
+@22
+CMAC_TESTING.cmac1.i_TX_Byte_reg[7:0]
+@c00028
+CMAC_TESTING.cmac1.i_TX_Count_reg[1:0]
+@28
+(0)CMAC_TESTING.cmac1.i_TX_Count_reg[1:0]
+(1)CMAC_TESTING.cmac1.i_TX_Count_reg[1:0]
+@1401200
+-group_end
+@28
+CMAC_TESTING.cmac1.i_TX_DV_reg
+CMAC_TESTING.cmac1.w_TX_Ready
+@22
+CMAC_TESTING.cmac1.io_dataIn[127:0]
+CMAC_TESTING.cmac1.io_dataOut[127:0]
+@28
+CMAC_TESTING.cmac1.io_decrypt
+CMAC_TESTING.cmac1.io_done
+@29
+CMAC_TESTING.cmac1.io_busy
+@28
+CMAC_TESTING.cmac1.io_start
+[pattern_trace] 1
+[pattern_trace] 0
