@@ -1,6 +1,6 @@
 // Generator : SpinalHDL v1.12.3    git head : 591e64062329e5e2e2b81f4d52422948053edb97
 // Component : AesIterative
-// Git hash  : d755f1a3b0560d35e9b8e203b6a71408f2381d7b
+// Git hash  : 1a27833894f0bb941841ca9e7d00843429093d22
 
 `timescale 1ns/1ps
 
@@ -929,6 +929,8 @@ module AesIterative (
   wire       [31:0]   _zz_stateReg_77;
   wire       [31:0]   _zz_stateReg_78;
   wire                when_AES128_l314;
+  wire                when_AES128_l326;
+  wire                when_AES128_l332;
   wire       [31:0]   _zz_roundKeyReg_3;
   wire       [31:0]   _zz_roundKeyReg_2;
   wire       [31:0]   _zz_roundKeyReg_1;
@@ -967,7 +969,7 @@ module AesIterative (
   reg        [7:0]    _zz_stateReg_109;
   reg        [7:0]    _zz_stateReg_110;
   reg        [7:0]    _zz_stateReg_111;
-  wire                when_AES128_l357;
+  wire                when_AES128_l366;
   wire       [7:0]    _zz_stateReg_112;
   wire       [7:0]    _zz_stateReg_113;
   wire       [7:0]    _zz_stateReg_114;
@@ -1416,8 +1418,6 @@ module AesIterative (
   wire       [7:0]    _zz_stateReg_557;
   wire       [7:0]    _zz_stateReg_558;
   wire       [7:0]    _zz_stateReg_559;
-  wire                when_AES128_l384;
-  wire                when_AES128_l390;
   wire                when_AES128_l230;
   wire                when_AES128_l300;
   wire                when_AES128_l325;
@@ -13721,7 +13721,7 @@ module AesIterative (
         if(!when_AES128_l300) begin
           if(!precomputeRunning) begin
             if(when_AES128_l325) begin
-              if(when_AES128_l384) begin
+              if(when_AES128_l326) begin
                 io_done = 1'b1;
               end
             end
@@ -13742,7 +13742,7 @@ module AesIterative (
         if(!when_AES128_l300) begin
           if(!precomputeRunning) begin
             if(when_AES128_l325) begin
-              if(when_AES128_l384) begin
+              if(when_AES128_l326) begin
                 io_dataOut = stateReg;
               end
             end
@@ -13948,6 +13948,8 @@ module AesIterative (
   assign _zz_stateReg_77 = (roundKeyReg_2 ^ _zz_stateReg_76);
   assign _zz_stateReg_78 = (roundKeyReg_3 ^ _zz_stateReg_77);
   assign when_AES128_l314 = (precomputeCounter == 4'b1001);
+  assign when_AES128_l326 = (roundCount == 4'b1010);
+  assign when_AES128_l332 = (4'b0000 < rconCounter);
   assign _zz_roundKeyReg_3 = (roundKeyReg_3 ^ roundKeyReg_2);
   assign _zz_roundKeyReg_2 = (roundKeyReg_2 ^ roundKeyReg_1);
   assign _zz_roundKeyReg_1 = (roundKeyReg_1 ^ roundKeyReg_0);
@@ -13972,7 +13974,7 @@ module AesIterative (
   assign _zz_stateReg_95 = _zz_stateReg_79[7 : 0];
   always @(*) begin
     _zz_stateReg_96 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_96 = _zz_stateReg_80;
     end else begin
       _zz_stateReg_96 = (((((_zz__zz_stateReg_96 ^ _zz__zz_stateReg_96_1) ^ (_zz__zz_stateReg_96_2 ? _zz__zz_stateReg_96_3 : _zz_stateReg_120)) ^ ((_zz__zz_stateReg_96_4 ^ _zz__zz_stateReg_96_5) ^ _zz_stateReg_81)) ^ (((_zz__zz_stateReg_96_6 ? _zz__zz_stateReg_96_7 : _zz_stateReg_131) ^ (_zz__zz_stateReg_96_8 ? _zz__zz_stateReg_96_9 : _zz_stateReg_134)) ^ _zz_stateReg_82)) ^ ((_zz_stateReg_138[7] ? (_zz_stateReg_139 ^ 8'h1b) : _zz_stateReg_139) ^ _zz_stateReg_83));
@@ -13981,7 +13983,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_97 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_97 = _zz_stateReg_81;
     end else begin
       _zz_stateReg_97 = (((((_zz__zz_stateReg_97 ? _zz__zz_stateReg_97_1 : _zz_stateReg_144) ^ _zz_stateReg_80) ^ ((_zz__zz_stateReg_97_2 ^ _zz__zz_stateReg_97_3) ^ (_zz__zz_stateReg_97_4 ? _zz__zz_stateReg_97_5 : _zz_stateReg_153))) ^ (((_zz__zz_stateReg_97_6 ? _zz__zz_stateReg_97_7 : _zz_stateReg_158) ^ (_zz__zz_stateReg_97_8 ? _zz__zz_stateReg_97_9 : _zz_stateReg_159)) ^ _zz_stateReg_82)) ^ (((_zz_stateReg_163[7] ? (_zz_stateReg_164 ^ _zz__zz_stateReg_97_10) : _zz_stateReg_164) ^ (_zz_stateReg_166[7] ? (_zz_stateReg_167 ^ _zz__zz_stateReg_97_11) : _zz_stateReg_167)) ^ _zz_stateReg_83));
@@ -13990,7 +13992,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_98 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_98 = _zz_stateReg_82;
     end else begin
       _zz_stateReg_98 = (((((_zz__zz_stateReg_98 ^ _zz__zz_stateReg_98_1) ^ _zz_stateReg_80) ^ ((_zz__zz_stateReg_98_2 ? _zz__zz_stateReg_98_3 : _zz_stateReg_180) ^ _zz_stateReg_81)) ^ (((_zz__zz_stateReg_98_4 ? _zz__zz_stateReg_98_5 : _zz_stateReg_185) ^ (_zz__zz_stateReg_98_6 ? _zz__zz_stateReg_98_7 : _zz_stateReg_188)) ^ (_zz_stateReg_82[7] ? (_zz_stateReg_189 ^ _zz__zz_stateReg_98_8) : _zz_stateReg_189))) ^ (((_zz_stateReg_193[7] ? (_zz_stateReg_194 ^ _zz__zz_stateReg_98_9) : _zz_stateReg_194) ^ (_zz_stateReg_83[7] ? (_zz_stateReg_195 ^ _zz__zz_stateReg_98_10) : _zz_stateReg_195)) ^ _zz_stateReg_83));
@@ -13999,7 +14001,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_99 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_99 = _zz_stateReg_83;
     end else begin
       _zz_stateReg_99 = (((((_zz__zz_stateReg_99 ^ _zz__zz_stateReg_99_1) ^ _zz_stateReg_80) ^ ((_zz__zz_stateReg_99_2 ^ _zz__zz_stateReg_99_3) ^ _zz_stateReg_81)) ^ ((_zz_stateReg_213[7] ? (_zz_stateReg_214 ^ _zz__zz_stateReg_99_4) : _zz_stateReg_214) ^ _zz_stateReg_82)) ^ (((_zz_stateReg_218[7] ? (_zz_stateReg_219 ^ _zz__zz_stateReg_99_5) : _zz_stateReg_219) ^ (_zz_stateReg_221[7] ? (_zz_stateReg_222 ^ _zz__zz_stateReg_99_6) : _zz_stateReg_222)) ^ (_zz_stateReg_83[7] ? (_zz_stateReg_223 ^ 8'h1b) : _zz_stateReg_223)));
@@ -14008,7 +14010,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_100 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_100 = _zz_stateReg_84;
     end else begin
       _zz_stateReg_100 = (((((_zz__zz_stateReg_100 ^ _zz__zz_stateReg_100_1) ^ (_zz__zz_stateReg_100_2 ? _zz__zz_stateReg_100_3 : _zz_stateReg_232)) ^ ((_zz__zz_stateReg_100_4 ^ _zz__zz_stateReg_100_5) ^ _zz_stateReg_85)) ^ (((_zz__zz_stateReg_100_6 ? _zz__zz_stateReg_100_7 : _zz_stateReg_243) ^ (_zz__zz_stateReg_100_8 ? _zz__zz_stateReg_100_9 : _zz_stateReg_246)) ^ _zz_stateReg_86)) ^ ((_zz_stateReg_250[7] ? (_zz_stateReg_251 ^ 8'h1b) : _zz_stateReg_251) ^ _zz_stateReg_87));
@@ -14017,7 +14019,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_101 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_101 = _zz_stateReg_85;
     end else begin
       _zz_stateReg_101 = (((((_zz__zz_stateReg_101 ? _zz__zz_stateReg_101_1 : _zz_stateReg_256) ^ _zz_stateReg_84) ^ ((_zz__zz_stateReg_101_2 ^ _zz__zz_stateReg_101_3) ^ (_zz__zz_stateReg_101_4 ? _zz__zz_stateReg_101_5 : _zz_stateReg_265))) ^ (((_zz__zz_stateReg_101_6 ? _zz__zz_stateReg_101_7 : _zz_stateReg_270) ^ (_zz__zz_stateReg_101_8 ? _zz__zz_stateReg_101_9 : _zz_stateReg_271)) ^ _zz_stateReg_86)) ^ (((_zz_stateReg_275[7] ? (_zz_stateReg_276 ^ _zz__zz_stateReg_101_10) : _zz_stateReg_276) ^ (_zz_stateReg_278[7] ? (_zz_stateReg_279 ^ _zz__zz_stateReg_101_11) : _zz_stateReg_279)) ^ _zz_stateReg_87));
@@ -14026,7 +14028,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_102 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_102 = _zz_stateReg_86;
     end else begin
       _zz_stateReg_102 = (((((_zz__zz_stateReg_102 ^ _zz__zz_stateReg_102_1) ^ _zz_stateReg_84) ^ ((_zz__zz_stateReg_102_2 ? _zz__zz_stateReg_102_3 : _zz_stateReg_292) ^ _zz_stateReg_85)) ^ (((_zz__zz_stateReg_102_4 ? _zz__zz_stateReg_102_5 : _zz_stateReg_297) ^ (_zz__zz_stateReg_102_6 ? _zz__zz_stateReg_102_7 : _zz_stateReg_300)) ^ (_zz_stateReg_86[7] ? (_zz_stateReg_301 ^ _zz__zz_stateReg_102_8) : _zz_stateReg_301))) ^ (((_zz_stateReg_305[7] ? (_zz_stateReg_306 ^ _zz__zz_stateReg_102_9) : _zz_stateReg_306) ^ (_zz_stateReg_87[7] ? (_zz_stateReg_307 ^ _zz__zz_stateReg_102_10) : _zz_stateReg_307)) ^ _zz_stateReg_87));
@@ -14035,7 +14037,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_103 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_103 = _zz_stateReg_87;
     end else begin
       _zz_stateReg_103 = (((((_zz__zz_stateReg_103 ^ _zz__zz_stateReg_103_1) ^ _zz_stateReg_84) ^ ((_zz__zz_stateReg_103_2 ^ _zz__zz_stateReg_103_3) ^ _zz_stateReg_85)) ^ ((_zz_stateReg_325[7] ? (_zz_stateReg_326 ^ _zz__zz_stateReg_103_4) : _zz_stateReg_326) ^ _zz_stateReg_86)) ^ (((_zz_stateReg_330[7] ? (_zz_stateReg_331 ^ _zz__zz_stateReg_103_5) : _zz_stateReg_331) ^ (_zz_stateReg_333[7] ? (_zz_stateReg_334 ^ _zz__zz_stateReg_103_6) : _zz_stateReg_334)) ^ (_zz_stateReg_87[7] ? (_zz_stateReg_335 ^ 8'h1b) : _zz_stateReg_335)));
@@ -14044,7 +14046,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_104 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_104 = _zz_stateReg_88;
     end else begin
       _zz_stateReg_104 = (((((_zz__zz_stateReg_104 ^ _zz__zz_stateReg_104_1) ^ (_zz__zz_stateReg_104_2 ? _zz__zz_stateReg_104_3 : _zz_stateReg_344)) ^ ((_zz__zz_stateReg_104_4 ^ _zz__zz_stateReg_104_5) ^ _zz_stateReg_89)) ^ (((_zz__zz_stateReg_104_6 ? _zz__zz_stateReg_104_7 : _zz_stateReg_355) ^ (_zz__zz_stateReg_104_8 ? _zz__zz_stateReg_104_9 : _zz_stateReg_358)) ^ _zz_stateReg_90)) ^ ((_zz_stateReg_362[7] ? (_zz_stateReg_363 ^ 8'h1b) : _zz_stateReg_363) ^ _zz_stateReg_91));
@@ -14053,7 +14055,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_105 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_105 = _zz_stateReg_89;
     end else begin
       _zz_stateReg_105 = (((((_zz__zz_stateReg_105 ? _zz__zz_stateReg_105_1 : _zz_stateReg_368) ^ _zz_stateReg_88) ^ ((_zz__zz_stateReg_105_2 ^ _zz__zz_stateReg_105_3) ^ (_zz__zz_stateReg_105_4 ? _zz__zz_stateReg_105_5 : _zz_stateReg_377))) ^ (((_zz__zz_stateReg_105_6 ? _zz__zz_stateReg_105_7 : _zz_stateReg_382) ^ (_zz__zz_stateReg_105_8 ? _zz__zz_stateReg_105_9 : _zz_stateReg_383)) ^ _zz_stateReg_90)) ^ (((_zz_stateReg_387[7] ? (_zz_stateReg_388 ^ _zz__zz_stateReg_105_10) : _zz_stateReg_388) ^ (_zz_stateReg_390[7] ? (_zz_stateReg_391 ^ _zz__zz_stateReg_105_11) : _zz_stateReg_391)) ^ _zz_stateReg_91));
@@ -14062,7 +14064,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_106 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_106 = _zz_stateReg_90;
     end else begin
       _zz_stateReg_106 = (((((_zz__zz_stateReg_106 ^ _zz__zz_stateReg_106_1) ^ _zz_stateReg_88) ^ ((_zz__zz_stateReg_106_2 ? _zz__zz_stateReg_106_3 : _zz_stateReg_404) ^ _zz_stateReg_89)) ^ (((_zz__zz_stateReg_106_4 ? _zz__zz_stateReg_106_5 : _zz_stateReg_409) ^ (_zz__zz_stateReg_106_6 ? _zz__zz_stateReg_106_7 : _zz_stateReg_412)) ^ (_zz_stateReg_90[7] ? (_zz_stateReg_413 ^ _zz__zz_stateReg_106_8) : _zz_stateReg_413))) ^ (((_zz_stateReg_417[7] ? (_zz_stateReg_418 ^ _zz__zz_stateReg_106_9) : _zz_stateReg_418) ^ (_zz_stateReg_91[7] ? (_zz_stateReg_419 ^ _zz__zz_stateReg_106_10) : _zz_stateReg_419)) ^ _zz_stateReg_91));
@@ -14071,7 +14073,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_107 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_107 = _zz_stateReg_91;
     end else begin
       _zz_stateReg_107 = (((((_zz__zz_stateReg_107 ^ _zz__zz_stateReg_107_1) ^ _zz_stateReg_88) ^ ((_zz__zz_stateReg_107_2 ^ _zz__zz_stateReg_107_3) ^ _zz_stateReg_89)) ^ ((_zz_stateReg_437[7] ? (_zz_stateReg_438 ^ _zz__zz_stateReg_107_4) : _zz_stateReg_438) ^ _zz_stateReg_90)) ^ (((_zz_stateReg_442[7] ? (_zz_stateReg_443 ^ _zz__zz_stateReg_107_5) : _zz_stateReg_443) ^ (_zz_stateReg_445[7] ? (_zz_stateReg_446 ^ _zz__zz_stateReg_107_6) : _zz_stateReg_446)) ^ (_zz_stateReg_91[7] ? (_zz_stateReg_447 ^ 8'h1b) : _zz_stateReg_447)));
@@ -14080,7 +14082,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_108 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_108 = _zz_stateReg_92;
     end else begin
       _zz_stateReg_108 = (((((_zz__zz_stateReg_108 ^ _zz__zz_stateReg_108_1) ^ (_zz__zz_stateReg_108_2 ? _zz__zz_stateReg_108_3 : _zz_stateReg_456)) ^ ((_zz__zz_stateReg_108_4 ^ _zz__zz_stateReg_108_5) ^ _zz_stateReg_93)) ^ (((_zz__zz_stateReg_108_6 ? _zz__zz_stateReg_108_7 : _zz_stateReg_467) ^ (_zz__zz_stateReg_108_8 ? _zz__zz_stateReg_108_9 : _zz_stateReg_470)) ^ _zz_stateReg_94)) ^ ((_zz_stateReg_474[7] ? (_zz_stateReg_475 ^ 8'h1b) : _zz_stateReg_475) ^ _zz_stateReg_95));
@@ -14089,7 +14091,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_109 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_109 = _zz_stateReg_93;
     end else begin
       _zz_stateReg_109 = (((((_zz__zz_stateReg_109 ? _zz__zz_stateReg_109_1 : _zz_stateReg_480) ^ _zz_stateReg_92) ^ ((_zz__zz_stateReg_109_2 ^ _zz__zz_stateReg_109_3) ^ (_zz__zz_stateReg_109_4 ? _zz__zz_stateReg_109_5 : _zz_stateReg_489))) ^ (((_zz__zz_stateReg_109_6 ? _zz__zz_stateReg_109_7 : _zz_stateReg_494) ^ (_zz__zz_stateReg_109_8 ? _zz__zz_stateReg_109_9 : _zz_stateReg_495)) ^ _zz_stateReg_94)) ^ (((_zz_stateReg_499[7] ? (_zz_stateReg_500 ^ _zz__zz_stateReg_109_10) : _zz_stateReg_500) ^ (_zz_stateReg_502[7] ? (_zz_stateReg_503 ^ _zz__zz_stateReg_109_11) : _zz_stateReg_503)) ^ _zz_stateReg_95));
@@ -14098,7 +14100,7 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_110 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_110 = _zz_stateReg_94;
     end else begin
       _zz_stateReg_110 = (((((_zz__zz_stateReg_110 ^ _zz__zz_stateReg_110_1) ^ _zz_stateReg_92) ^ ((_zz__zz_stateReg_110_2 ? _zz__zz_stateReg_110_3 : _zz_stateReg_516) ^ _zz_stateReg_93)) ^ (((_zz__zz_stateReg_110_4 ? _zz__zz_stateReg_110_5 : _zz_stateReg_521) ^ (_zz__zz_stateReg_110_6 ? _zz__zz_stateReg_110_7 : _zz_stateReg_524)) ^ (_zz_stateReg_94[7] ? (_zz_stateReg_525 ^ _zz__zz_stateReg_110_8) : _zz_stateReg_525))) ^ (((_zz_stateReg_529[7] ? (_zz_stateReg_530 ^ _zz__zz_stateReg_110_9) : _zz_stateReg_530) ^ (_zz_stateReg_95[7] ? (_zz_stateReg_531 ^ _zz__zz_stateReg_110_10) : _zz_stateReg_531)) ^ _zz_stateReg_95));
@@ -14107,14 +14109,14 @@ module AesIterative (
 
   always @(*) begin
     _zz_stateReg_111 = 8'h0;
-    if(when_AES128_l357) begin
+    if(when_AES128_l366) begin
       _zz_stateReg_111 = _zz_stateReg_95;
     end else begin
       _zz_stateReg_111 = (((((_zz__zz_stateReg_111 ^ _zz__zz_stateReg_111_1) ^ _zz_stateReg_92) ^ ((_zz__zz_stateReg_111_2 ^ _zz__zz_stateReg_111_3) ^ _zz_stateReg_93)) ^ ((_zz_stateReg_549[7] ? (_zz_stateReg_550 ^ _zz__zz_stateReg_111_4) : _zz_stateReg_550) ^ _zz_stateReg_94)) ^ (((_zz_stateReg_554[7] ? (_zz_stateReg_555 ^ _zz__zz_stateReg_111_5) : _zz_stateReg_555) ^ (_zz_stateReg_557[7] ? (_zz_stateReg_558 ^ _zz__zz_stateReg_111_6) : _zz_stateReg_558)) ^ (_zz_stateReg_95[7] ? (_zz_stateReg_559 ^ 8'h1b) : _zz_stateReg_559)));
     end
   end
 
-  assign when_AES128_l357 = (rconCounter == 4'b0000);
+  assign when_AES128_l366 = (rconCounter == 4'b0000);
   assign _zz_stateReg_112 = {_zz_stateReg_80[6 : 0],1'b0};
   assign _zz_stateReg_113 = (_zz_stateReg_80[7] ? (_zz_stateReg_112 ^ 8'h1b) : _zz_stateReg_112);
   assign _zz_stateReg_114 = {_zz_stateReg_113[6 : 0],1'b0};
@@ -14563,10 +14565,8 @@ module AesIterative (
   assign _zz_stateReg_557 = (_zz_stateReg_95[7] ? (_zz_stateReg_556 ^ 8'h1b) : _zz_stateReg_556);
   assign _zz_stateReg_558 = {_zz_stateReg_557[6 : 0],1'b0};
   assign _zz_stateReg_559 = {_zz_stateReg_95[6 : 0],1'b0};
-  assign when_AES128_l384 = (roundCount == 4'b1010);
-  assign when_AES128_l390 = (4'b0000 < rconCounter);
   assign when_AES128_l230 = (running && (! io_decrypt));
-  assign when_AES128_l300 = (((! running) && (! precomputeRunning)) && io_decrypt);
+  assign when_AES128_l300 = (((io_start && (! running)) && (! precomputeRunning)) && io_decrypt);
   assign when_AES128_l325 = (running && io_decrypt);
   always @(posedge clk or posedge reset) begin
     if(reset) begin
@@ -14634,19 +14634,19 @@ module AesIterative (
               end
             end else begin
               if(when_AES128_l325) begin
+                if(when_AES128_l326) begin
+                  running <= 1'b0;
+                end else begin
+                  roundCount <= (roundCount + 4'b0001);
+                  if(when_AES128_l332) begin
+                    rconCounter <= (rconCounter - 4'b0001);
+                  end
+                end
                 stateReg <= {{{{{{{{{{{_zz_stateReg_595,_zz_stateReg_596},_zz_stateReg_102},_zz_stateReg_103},_zz_stateReg_104},_zz_stateReg_105},_zz_stateReg_106},_zz_stateReg_107},_zz_stateReg_108},_zz_stateReg_109},_zz_stateReg_110},_zz_stateReg_111};
                 roundKeyReg_0 <= _zz_roundKeyReg_0_1;
                 roundKeyReg_1 <= _zz_roundKeyReg_1;
                 roundKeyReg_2 <= _zz_roundKeyReg_2;
                 roundKeyReg_3 <= _zz_roundKeyReg_3;
-                if(when_AES128_l384) begin
-                  running <= 1'b0;
-                end else begin
-                  roundCount <= (roundCount + 4'b0001);
-                  if(when_AES128_l390) begin
-                    rconCounter <= (rconCounter - 4'b0001);
-                  end
-                end
               end
             end
           end

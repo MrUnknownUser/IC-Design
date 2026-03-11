@@ -297,7 +297,7 @@ class AesIterative extends Component {
       roundCount := roundCount + 1
       when(rconCounter < U(9)) { rconCounter := rconCounter + 1 }
     }
-  }.elsewhen(!running && !precomputeRunning && io.decrypt) { 
+  }.elsewhen(io.start && !running && !precomputeRunning && io.decrypt) { 
     // start precompute to get roundKey_10 
     val initWords = bitsToWords(io.key)
 
@@ -323,6 +323,15 @@ class AesIterative extends Component {
       rconCounter := U(9) // for inverse schedule 
     }
   }.elsewhen(running && io.decrypt) {
+    when(roundCount === U(10)) {
+      running := False
+      io.done := True
+      io.dataOut := stateReg
+    } otherwise {
+      roundCount := roundCount + 1
+      when(rconCounter > U(0)) { rconCounter := rconCounter - 1 }
+    }
+    
     val m = bitsToMatrix(stateReg)
 
     // InvShiftRows + InvSubBytes
@@ -355,8 +364,8 @@ class AesIterative extends Component {
     val invMixed   = Vec(UInt(8 bits), 16)
     for(i <- 0 until 16) invMixed(i) := U(0, 8 bits)
     when(rconCounter === U(0)) { // last decrypt round: no InvMixColumns, pass-through after AddRoundKey 
-    for(i <- 0 until 16) 
-      invMixed(i) := afterAddMat(i) 
+      for(i <- 0 until 16) 
+        invMixed(i) := afterAddMat(i) 
     } otherwise { 
       def invMixCol(c: Int) = { 
         val y = invMixColumn( 
@@ -380,14 +389,5 @@ class AesIterative extends Component {
 
     // update current round key to prev (for next iteration)
     roundKeyReg := prevRoundKey
-
-    when(roundCount === U(10)) {
-      running := False
-      io.done := True
-      io.dataOut := stateReg
-    } otherwise {
-      roundCount := roundCount + 1
-      when(rconCounter > U(0)) { rconCounter := rconCounter - 1 }
-    }
   }
 }

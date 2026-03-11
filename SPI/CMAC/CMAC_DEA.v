@@ -95,9 +95,9 @@ logic          io_start = 1'b0;
 logic          io_decrypt = 1'b0;
 wire [127:0]  io_key = 128'H39558d1f193656ab8b4b65e25ac48474;
 logic [127:0]  io_dataIn;
-reg  [127:0]  io_dataOut;
+logic  [127:0]  io_dataOut;
 wire          io_busy;
-reg           io_done;
+logic           io_done;
 
 AesIterative AES1 (
 io_start,

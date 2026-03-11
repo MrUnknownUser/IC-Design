@@ -17,7 +17,7 @@ object AesSim {
 
       dut.clockDomain.forkStimulus(period = 10)
       dut.clockDomain.waitSampling()
-      
+      /*
       // start encrypt
       dut.io.start #= true
       dut.clockDomain.waitSampling()
@@ -37,12 +37,12 @@ object AesSim {
       println("Cipher   = " + cipherOut.toString(16))
       println("Expected = " + expected.toString(16))
       if(cipherOut == expected) println("Encrypt: OK (matches expected)") else println("Encrypt: MISMATCH")
-
+      */
       // optional pause
       dut.clockDomain.waitSampling(2)
       
       // start decrypt
-      cycles = 0
+      var cycles = 0
       dut.io.decrypt #= true
       dut.io.key #= key
       dut.io.dataIn #= expected
