@@ -2,6 +2,7 @@
 // INCLUDES 
 `include "SPI_Master_With_Single_CS.v" 
 `include "AesIterative.v"
+`include "ASG.v"
 
 module cmac_handshake ( 
     input clk, 
@@ -32,7 +33,7 @@ reg       next_lock_state;
 
 reg valid_ID;
 reg [127:0] rec_ID;
-//reg [127:0] rec_Challenge = 128'b00;
+reg [63:0] rec_Challenge = 64'b00;
 
 
 // --- SPI-signals ---
@@ -93,11 +94,18 @@ spi_inst (
 // AES STUFF HERE
 logic          io_start = 1'b0;
 logic          io_decrypt = 1'b0;
-wire [127:0]  io_key = 128'H39558d1f193656ab8b4b65e25ac48474;
+logic [127:0]  io_key = 128'H39558d1f193656ab8b4b65e25ac48474; // KEYCARD KEY
 logic [127:0]  io_dataIn;
 logic  [127:0]  io_dataOut;
 wire          io_busy;
 logic           io_done;
+
+wire [127:0]  test_key = 128'H2b7e151628aed2a6abf7158809cf4f3c; // key for AES test
+//                            2b7e151628aed2a6abf7158809cf4f3c
+logic [127:0] test_cipher = 128'H3925841d02dc09fbdc118597196a0b32; // ciphertext for AES test
+//                               3925841d02dc09fbdc118597196a0b32
+logic [127:0] test_plain = 128'H3243f6a8885a308d313198a2e0370734; // plaintext for AES test
+//                              3243f6a8885a308d313198a2e0370734
 
 AesIterative AES1 (
 io_start,
@@ -111,6 +119,14 @@ clk,
 rst
 );
 // _AES
+
+
+
+
+
+// ASG STUFF HERE
+
+// _ASG
 
 
 
@@ -206,12 +222,16 @@ rst
             io_dataIn [119:112] <= rx_buf[14];
             io_dataIn [127:120] <= rx_buf[15];
 
+            io_dataIn <= test_cipher;
+            io_key <= test_key;
+
             io_decrypt <= 1'b1;
             io_start <= 1'b1;
             @(posedge clk);
             io_start <= 1'b0;
 
             @(posedge io_done);
+            //POTENTIALLY USELESS :)
             rx_buf[0] <= io_dataOut [7:0];
             rx_buf[1] <= io_dataOut [15:8];
             rx_buf[2] <= io_dataOut [23:16];
@@ -229,14 +249,20 @@ rst
             rx_buf[14] <= io_dataOut [119:112];
             rx_buf[15] <= io_dataOut [127:120];
 
+
+            //store challenge from KEYCARD
+            rec_Challenge[63:0] <= io_dataOut[127:64];
+
             next_state = S3; 
             @(posedge clk);
         end
         S3: begin 
             // send own challenge as padded 8 bytes + 8 byte challenge?
-            for (i = 0; i < 16; i = i + 1) begin
-                $display("decrypted? %X", rx_buf[i]);
-            end
+            $display("decrypted? %X", rec_Challenge);
+
+            //for (i = 0; i < 16; i = i + 1) begin
+            //    $display("decrypted? %X", rx_buf[i]);
+            //end
             next_state = S4;
         end
         S4: begin
