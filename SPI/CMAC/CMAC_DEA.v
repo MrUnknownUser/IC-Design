@@ -34,6 +34,8 @@ reg       next_lock_state;
 reg valid_ID;
 reg [127:0] rec_ID;
 reg [63:0] rec_Challenge = 64'b00;
+reg [127:0] eph_key_dec;
+reg [127:0] eph_key_enc;
 
 
 // --- SPI-signals ---
@@ -125,7 +127,616 @@ rst
 
 
 // ASG STUFF HERE
+// Intialize ASG variables (careful! signals (hence wires and registers!)
+logic [1:0] loadIt = 2'b0;
+logic       load = 1'b0;
+logic       enable = 1'b0;
+wire        newBit;  // ASG output
 
+
+ASG asg1 (
+    loadIt,
+    load,
+    enable,
+    newBit,
+    clk,
+    rst
+);
+
+logic init_done = 1'b0;
+logic [5:0] count; // 6 Bit counter: 0..63 
+logic [63:0] own_Challenge;
+logic sampling = 1'b0;
+logic enable_sample = 1'b0; // start, when this goes high
+logic [63:0] own_challenge; 
+logic sampled_done = 1'b0; // high when 64 bits have been sampled
+
+
+
+
+
+// Initialize ASG (and LSFRs) with non zero seeds
+initial begin
+        // Assert rst
+		//rst <= 1'b1;
+        //@(posedge clk);
+        
+        // Deassert rst
+        //rst <= 1'b0;
+        //@(posedge clk);
+
+    	//
+        // fill R1 with zeroes
+    	repeat (31) begin
+            loadIt <= 2'b01;
+    	    enable <= 1'b1;
+    	    load <= 1'b0;
+            @(posedge clk);
+        end
+    	//
+        // seed R1 with b'11101111011110111101
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+    	loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b01;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	// fill R2 with zeroes
+        repeat (127) begin
+        	loadIt <= 2'b10;
+        	enable <= 1'b1;
+    	    load <= 1'b0;
+            @(posedge clk);
+        end
+    
+
+        
+    	// seed R2 with b'0110011001100110110101101011010110101101011010110101101011010001001001001001001001001
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+        @(posedge clk);
+    	
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+    	loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b0;
+    	@(posedge clk);
+
+        loadIt <= 2'b10;
+    	enable <= 1'b1;
+    	load <= 1'b1;
+    	@(posedge clk);
+    	
+    	// fill R3 with zeroes
+        repeat (89) begin
+        	loadIt <= 2'b11;
+        	enable <= 1'b1;
+    	    load <= 1'b1;
+    	    @(posedge clk);
+        end 
+        
+      	// seed R3 with many one's
+    	repeat (60) begin
+    		loadIt <= 2'b11;
+    		enable <= 1'b1;
+    		load <= 1'b1;
+    		#1;
+    	end
+        
+        // Stop loading
+        loadIt <= 2'b00;
+      	load <= 1'b0;
+        #1;
+
+        // Enable the ASG
+        //#(1600); use if bad randomness at init_done clockedge
+        enable <= 1'b1;
+        init_done <= 1'b1;
+    end
 // _ASG
 
 
@@ -201,7 +812,7 @@ rst
             // decrypt 16 byte challenge here
             // generate own 8 byte challenge
             // concat first 8 bytes of challenge with own challenge
-            // store as 16 byte eph_key 
+            // store as 16 byte eph_key_dec 
             $display("STATE 2 DEBUG \n rx_buf[0] %X", rx_buf[0]);
             $display("STATE 2 DEBUG \n rx_buf[1] %X", rx_buf[1]);
             $display("STATE 2 DEBUG \n counter %X bytes received", received_byte_count);
@@ -254,16 +865,40 @@ rst
             rec_Challenge[63:0] <= io_dataOut[127:64];
 
             next_state = S3; 
+            enable_sample = 1'b1;
             @(posedge clk);
         end
         S3: begin 
-            // send own challenge as padded 8 bytes + 8 byte challenge?
-            $display("decrypted? %X", rec_Challenge);
+            
+            if (sampled_done) begin
+                // send own challenge as padded 8 bytes + 8 byte challenge?
+                enable_sample = 1'b0;
+                next_state = S4;
+                eph_key_dec [127:64] <= rec_Challenge;  // [15:8]
+                eph_key_dec [63:0] <= own_Challenge;  // [7:0]
+                $display("rec_Challenge? %X", rec_Challenge);
+                $display("own_Challenge? %X", own_Challenge);
+                $display("eph_key_dec? %X", eph_key_dec);
 
-            //for (i = 0; i < 16; i = i + 1) begin
-            //    $display("decrypted? %X", rx_buf[i]);
-            //end
-            next_state = S4;
+                @(posedge clk);
+                //io_dataIn <= eph_key_dec;
+                io_dataIn <= test_plain;
+                io_key <= test_key;
+
+                io_decrypt <= 1'b0;
+                io_start <= 1'b1;
+                @(posedge clk);
+                io_start <= 1'b0;
+
+                @(posedge io_done);
+                eph_key_enc <= io_dataOut;
+                $display("eph_key_enc? %X", eph_key_enc);
+                
+                @(posedge clk);
+            end else begin
+                next_state = S3;
+            end
+            
         end
         S4: begin
             //receive ID
@@ -304,6 +939,7 @@ always @(posedge clk or posedge rst) begin
         i_TX_Byte_reg <= 8'h00;
         i_TX_Count_reg <= 0;
         received_byte_count <= 1'b0;
+        enable_sample <= 1'b0;
 
 
         valid_ID <= 1'b0;
@@ -341,11 +977,39 @@ always @(posedge clk or posedge rst) begin
             $display("captured rx_buf: %X", rx_buf[received_byte_count]);
         end
 
-        if (state == S1 && next_state == S2) begin
-            // decrypt challenge
+        if (state == S3 && next_state == S3 && init_done) begin
+            if (rst) begin 
+                sampling <= 1'b0; 
+                count <= 6'd0; 
+                own_Challenge <= 64'h0; 
+                sampled_done <= 1'b0; 
+            end 
+            else begin 
+                if (!sampling) begin 
+                    sampled_done <= 1'b0; 
+                    if (enable_sample) begin 
+                        sampling <= 1'b1; 
+                        count <= 6'd0; 
+                        own_Challenge <= 64'h0; // initialize on zeros
+                    end 
+                end 
+                else begin // sampling == 1 
+                    // shift and collect
+                    own_Challenge <= {own_Challenge[62:0], newBit};
+                    // Alternative MSB-first_asg: own_Challenge <= {newBit, own_Challenge[63:1]};
+                    if (count == 6'd63) begin
+                        sampling     <= 1'b0;
+                        sampled_done <= 1'b1;
+                        count        <= 6'd0;
+                    end
+                    else begin
+                        count <= count + 6'd1;
+                    end
+                end
+            end
         end
 
-        if (state == S3 && next_state == S4) begin
+        if (state == S4 && next_state == S4) begin
             // decrypt challenge
             if (rec_ID == 128'Hbbe8278a67f960605adafd6f63cf7ba7) valid_ID <= 1'b1;
         end
