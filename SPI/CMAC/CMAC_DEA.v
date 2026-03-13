@@ -28,6 +28,23 @@ localparam S3 = 3'b011; // STORE_EPH_KEY
 localparam S4 = 3'b100; // REC_ID 
 localparam S5 = 3'b101; // UNLOCKED
 
+// State definitions 
+localparam CLA_PROPRIETARY = 8'h80;
+localparam INS_AUTH_INIT   = 8'h10;
+localparam INS_AUTH        = 8'h11;
+localparam INS_GET_ID      = 8'h12;
+
+
+// stupid shit
+logic state1_flag1;
+logic state1_flag2;
+logic state1_flag3;
+logic w_RX_DV_last_clk = 1'b0;
+logic state2_flag0;
+
+
+
+
 reg [2:0] state, next_state;
 reg       next_lock_state;
 
@@ -89,7 +106,7 @@ spi_inst (
     .o_SPI_MOSI(o_SPI_MOSI),
     .o_SPI_CS_n(o_SPI_CS_n)
 );
-
+logic tx_dv_pending;
 
 
 
@@ -749,6 +766,7 @@ initial begin
             state <= S0;
             lock_state <= 1'b0;
             received_byte_count <= 1'b0;
+            //ever_received_data <= 1'b0;
         end else begin
             state <= next_state;
             lock_state <= next_lock_state;
@@ -759,11 +777,11 @@ initial begin
     always @(*) begin 
         //$display("[%0t] fkass rx count: %X", $time, received_byte_count);
         // Default 
-        next_state = state; 
+        //next_state = state; 
         next_lock_state = 1'b0; 
         // Default SPI control signals 
         i_TX_DV_reg = 1'b0; 
-        i_TX_Byte_reg = 8'h00; 
+        //i_TX_Byte_reg = 8'h00; 
         i_TX_Count_reg = 0;
         valid_ID = 1'b0; 
 
@@ -772,42 +790,32 @@ initial begin
             if (in) next_state = S1;
             $display("[%0t] switched to S1", $time);
             received_byte_count <= 1'b0;
+            //ever_received_data <= 1'b0;
         end
         
         S1: begin
-            if (w_TX_Ready && (tx_idx <= tx_len)) begin
-                $display("[%0t] tx ready and still bytes to send", $time);
-                
-                // drive i_TX_Byte_reg and pulse i_TX_DV_reg for next byte
-                @(posedge clk);
-                i_TX_Byte_reg = tx_buf[tx_idx];
-                i_TX_DV_reg = 1'b1;
-                i_TX_Count_reg = tx_len + 1; // Anzahl Bytes insgesamt
-                $display("i_TX_Byte_reg: %X", i_TX_Byte_reg);
-                $display("i_TX_Count_reg: %X", i_TX_Count_reg);
-                $display("tx_len: %X", tx_len);
-                @(posedge clk);
-                i_TX_DV_reg = 1'b0;
-                @(posedge clk);
-                @(posedge w_TX_Ready);
-
-                //if ((w_RX_Count == (tx_len + 1)) && w_RX_DV) begin
-                if (o_SPI_CS_n && (received_byte_count != 0)) begin
-                    $display("RX DATA VALID: %X", w_RX_DV);
-                    $display("CS INACTIVE AGAIN: %X", o_SPI_CS_n);
-                    // proceed once byte received and count matches
-                    $display("[%0t] something happened, lets go to the mall (S2)", $time);
-                    //$display("w_RX_Byte: %X", w_RX_Byte);
-                    next_state = S2;
-                    //received_byte_count <= 1'b0;
-                    i_TX_Byte_reg <= 8'h00;
-                    @(posedge clk);
+            // In S1 nur Zustandsübergänge entscheiden, keine direkten SPI-Treiber
+            // Wenn Empfang abgeschlossen (Beispielbedingung), weiter zu S2
+            if (o_SPI_CS_n && (w_RX_DV_last_clk == 1'b1)) begin
+                $display("wir gehen once %X", w_RX_DV_last_clk);
+                if (~state2_flag0) begin
+                    state2_flag0 <= 1'b1;
                 end else begin
-                    $display("[%0t] I am retarded and want to KMS", $time);
-                    next_state = S1;
+                    w_RX_DV_last_clk <= 1'b0;
+                    next_state <= S2;
+                    $display("waduhektjunge]");
+                    $display("rx_buf[0]: %X", rx_buf[0]);
+                    $display("rx_buf[1]: %X", rx_buf[1]);
+                    $display("rx_buf[2]: %X", rx_buf[2]);
+                    $display("rx_buf[3]: %X", rx_buf[3]);
+                    state2_flag0 <= 1'b0;
                 end
+                
+            end else if (next_state == S1) begin
+                next_state = S1;
             end
         end
+
         S2:  begin 
             // decrypt 16 byte challenge here
             // generate own 8 byte challenge
@@ -915,46 +923,104 @@ end
 // --- synchronous thingy layout ---
 always @(posedge clk or posedge rst) begin
     if (rst) begin
+        // clear tx_buf
+        for (i = 0; i < 16; i = i + 1) tx_buf[i] <= 8'h00;
+
+        //$display("tx_buf: %X", tx_buf[0]);
         tx_idx <= 0;
         tx_len <= 0;
-        // clear buffer on reset
-        tx_buf[0] <= 8'h00;
-        tx_buf[1] <= 8'h00;
-        tx_buf[2] <= 8'h00;
-        tx_buf[3] <= 8'h00;
-        tx_buf[4] <= 8'h00;
-        tx_buf[5] <= 8'h00;
-        tx_buf[6] <= 8'h00;
-        tx_buf[7] <= 8'h00;
-        tx_buf[8] <= 8'h00;
-        tx_buf[9] <= 8'h00;
-        tx_buf[10] <= 8'h00;
-        tx_buf[11] <= 8'h00;
-        tx_buf[12] <= 8'h00;
-        tx_buf[13] <= 8'h00;
-        tx_buf[14] <= 8'h00;
-        tx_buf[15] <= 8'h00;
-        //$display("tx_buf: %X", tx_buf[0]);
         i_TX_DV_reg <= 1'b0;
         i_TX_Byte_reg <= 8'h00;
         i_TX_Count_reg <= 0;
-        received_byte_count <= 1'b0;
-        enable_sample <= 1'b0;
+        state1_flag1 <= 1'b0;
+        state1_flag2 <= 1'b0;
+        state1_flag3 <= 1'b0;
+        state2_flag0 <= 1'b0;
 
+        //received_byte_count <= 1'b0;
+        enable_sample <= 1'b0;
+        //ever_received_data <= 1'b0;
 
         valid_ID <= 1'b0;
+
     end else begin
-        if (state == S1 && next_state == S1) begin
+        if (state == S0 && next_state == S1) begin
             //tx_buf[0] <= 8'h10;  //send auth_init
-            tx_buf[0] <= 8'h10; 
-            tx_buf[1] <= 8'hFF; 
-            //$display("tx_buf[0]: %X", tx_buf[0]);
-            //$display("tx_buf[1]: %X", tx_buf[1]);
-            tx_len <= 1;         //byte count to send (i-1)
+            tx_buf[0] <= CLA_PROPRIETARY; 
+            tx_buf[1] <= INS_AUTH_INIT;
+            tx_buf[2] <= 8'h00; 
+            tx_buf[3] <= 8'hFF; 
+            //tx_buf[4] <= 8'hFF; 
+            $display("tx_buf[0]: %X", tx_buf[0]);
+            $display("tx_buf[1]: %X", tx_buf[1]);
+            $display("tx_buf[2]: %X", tx_buf[2]);
+            $display("tx_buf[3]: %X", tx_buf[3]);
+            tx_len <= 4;         //byte count to send
             tx_idx <= 0;
-            i_TX_Count_reg <= 2;
+            i_TX_Count_reg <= 4;
+            //@(posedge clk);
         end
 
+        // save byte on o_RX_DV pulse
+        //if (w_RX_DV && (received_byte_count > 0)) begin
+        if (w_RX_DV) begin
+            w_RX_DV_last_clk <= 1'b1;
+            $display(" [][][][][%0t]  found RX pulse, saving byte", $time);
+            rx_buf[received_byte_count] <= w_RX_Byte;
+            received_byte_count <= received_byte_count + 1'b1;
+            //ever_received_data <= 1'b1;  // god I hate this
+            $display("w_RX_Byte: %X", w_RX_Byte);
+            $display("received_byte_count: %X", received_byte_count);
+        end
+
+        if (state == S1 && w_TX_Ready && (tx_idx < tx_len)) begin
+            $display(" [][][][][%0t]  state 1 logic", $time);
+            // drive i_TX_Byte_reg and pulse i_TX_DV_reg for next byte
+            if (state1_flag1) begin
+                //@(posedge clk);
+                if (~state1_flag2) begin
+                    state1_flag2 <= 1'b1;
+                end else begin
+                    i_TX_Byte_reg <= tx_buf[tx_idx];
+                    i_TX_Count_reg <= tx_len; // Anzahl Bytes insgesamt
+                    i_TX_DV_reg <= 1'b1;
+                    tx_idx <= tx_idx + 1'b1;
+                    $display("i_TX_Byte_reg: %X", i_TX_Byte_reg);
+                    $display("i_TX_Count_reg: %X", i_TX_Count_reg);
+                    $display("tx_len: %X", tx_len);
+                end
+            //@(posedge clk);
+            //i_TX_DV_reg <= 1'b0;
+            //@(posedge clk);
+            //@(posedge w_TX_Ready);
+            //$display("[%0t] I am retarded and want to KMS", $time);
+            end else begin
+                state1_flag1 <= 1'b1;
+            end
+        end else if (state1_flag1 && state1_flag2) begin
+            if (~state1_flag3) begin
+                state1_flag3 <= 1'b1;
+            end else begin
+                i_TX_DV_reg <= 1'b0;
+                state1_flag1 <= 1'b0;
+                state1_flag2 <= 1'b0;
+                state1_flag3 <= 1'b0;
+            end
+            //@(posedge clk);
+            //$display("obscure bullshit occured");
+        end
+        /*
+        if (w_RX_DV && (received_byte_count == 0)) begin
+            $display(" [][][][][%0t]  found RX pulse, saving fist byte", $time);
+            rx_buf[received_byte_count] <= w_RX_Byte;
+            received_byte_count <= 1'b1;
+            $display("w_RX_Byte: %X", w_RX_Byte);
+            $display("received_byte_count: %X", received_byte_count);
+        end*/
+
+
+
+                /*
         // pulse i_TX_DV for 1 clockcycle if SPI ready and not done 
         if (w_TX_Ready && (tx_idx <= tx_len)) begin  // evtl index fehler
             $display("ich bin ein nerviger bastard und muss weitersenden");
@@ -965,17 +1031,10 @@ always @(posedge clk or posedge rst) begin
             tx_idx <= tx_idx + 1'b1;
         end else begin
             i_TX_DV_reg <= 1'b0;
-        end
+            $display("obscure bullshit occured");
+        end*/
 
-        // save byte on o_RX_DV pulse
-        if (w_RX_DV) begin
-            //rx_buf[w_RX_Count] <= w_RX_Byte;
-            rx_buf[received_byte_count] <= w_RX_Byte;
-            received_byte_count <= received_byte_count + 1'b1;
-            $display("w_RX_Byte: %X", w_RX_Byte);
-            $display("received_byte_count: %X", received_byte_count);
-            $display("captured rx_buf: %X", rx_buf[received_byte_count]);
-        end
+
 
         if (state == S3 && next_state == S3 && init_done) begin
             if (rst) begin 
