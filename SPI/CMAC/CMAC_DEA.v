@@ -45,6 +45,8 @@ logic state2_flag1;
 logic state2_flag2;
 logic state2_flag3;
 logic io_done_last_clk = 1'b0;
+logic state3_flag1;
+logic sampled_done_last_clk = 1'b0;
 
 
 
@@ -817,39 +819,21 @@ initial begin
                 end
             end
         end
+
         S3: begin 
-            
-            if (sampled_done) begin
-                // send own challenge as padded 8 bytes + 8 byte challenge?
-                enable_sample = 1'b0;
-                next_state = S4;
-                eph_key_dec [127:64] <= rec_Challenge;  // [15:8]
-                // check if lower 8 bytes are 0? --
-                eph_key_dec [63:0] <= own_Challenge;  // [7:0]
-                $display("rec_Challenge? %X", rec_Challenge);
-                $display("own_Challenge? %X", own_Challenge);
-                $display("eph_key_dec? %X", eph_key_dec);
-
-                @(posedge clk);
-                //io_dataIn <= eph_key_dec;
-                io_dataIn <= test_plain;
-                io_key <= test_key;
-
-                io_decrypt <= 1'b0;
-                io_start <= 1'b1;
-                @(posedge clk);
-                io_start <= 1'b0;
-
-                @(posedge io_done);
-                eph_key_enc <= io_dataOut;
-                $display("eph_key_enc? %X", eph_key_enc);
-                
-                @(posedge clk);
-            end else begin
-                next_state = S3;
+            if ((~sampled_done) && (sampled_done_last_clk == 1'b1)) begin
+                if (~state3_flag1) begin
+                    $display("S3 termination??");
+                    state3_flag1 <= 1'b1;
+                end else begin
+                    $display("S3 termination!!");
+                    sampled_done_last_clk <= 1'b0;
+                    next_state <= S4;
+                    state3_flag1 <= 1'b0;
+                end
             end
-            
         end
+
         S4: begin
             //receive ID
             // check ID CARD_A_ID = 128'Hbbe8278a67f960605adafd6f63cf7ba7;
@@ -884,6 +868,7 @@ always @(posedge clk or posedge rst) begin
         state2_flag2 <= 1'b0;
         state2_flag3 <= 1'b0;
         //io_done_last_clk <= 1'b0;
+        state3_flag1 <= 1'b0;
 
         //received_byte_count <= 1'b0;
         enable_sample <= 1'b0;
@@ -947,9 +932,6 @@ always @(posedge clk or posedge rst) begin
         if (state == S2 && next_state == S2) begin
             if (~state2_flag2) begin
                 // decrypt 16 byte challenge here
-                // generate own 8 byte challenge
-                // concat first 8 bytes of challenge with own challenge
-                // store as 16 byte eph_key_dec 
                 $display("STATE 2 DEBUG \n rx_buf[0] %X", rx_buf[0]);
                 $display("STATE 2 DEBUG \n rx_buf[1] %X", rx_buf[1]);
                 $display("STATE 2 DEBUG \n counter %X bytes received", received_byte_count);
@@ -1015,6 +997,37 @@ always @(posedge clk or posedge rst) begin
                     end
                 end
             end
+        end
+
+
+        if (state == S3 && next_state == S3 && sampled_done) begin
+            // generate own 8 byte challenge
+            // concat first 8 bytes of challenge with own challenge
+            // store as 16 byte eph_key_dec 
+                            // send own challenge as padded 8 bytes + 8 byte challenge?
+            enable_sample = 1'b0;
+            //next_state <= S4;
+            eph_key_dec [127:64] <= rec_Challenge;  // [15:8]
+            // check if lower 8 bytes are 0? --
+            eph_key_dec [63:0] <= own_Challenge;  // [7:0]
+            $display("rec_Challenge? %X", rec_Challenge);
+            $display("own_Challenge? %X", own_Challenge);
+            $display("eph_key_dec? %X", eph_key_dec);
+
+            @(posedge clk);
+            //io_dataIn <= eph_key_dec;
+            io_dataIn <= test_plain;
+            io_key <= test_key;
+
+            io_decrypt <= 1'b0;
+            io_start <= 1'b1;
+            @(posedge clk);
+            io_start <= 1'b0;
+
+            @(posedge io_done);
+            eph_key_enc <= io_dataOut;
+            $display("eph_key_enc? %X", eph_key_enc);
+            sampled_done_last_clk <= 1'b1;
         end
 
         if (state == S3 && next_state == S3 && init_done) begin
