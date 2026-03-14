@@ -43,6 +43,8 @@ logic w_RX_DV_last_clk = 1'b0;
 logic state2_flag0;
 logic state2_flag1;
 logic state2_flag2;
+logic state2_flag3;
+logic io_done_last_clk = 1'b0;
 
 
 
@@ -774,6 +776,8 @@ initial begin
         i_TX_DV_reg = 1'b0; 
         i_TX_Count_reg = 0;
 
+
+
     case (state)
         S0: begin
             if (in) next_state = S1;
@@ -799,66 +803,18 @@ initial begin
         end
 
         S2:  begin 
-            // decrypt 16 byte challenge here
-            // generate own 8 byte challenge
-            // concat first 8 bytes of challenge with own challenge
-            // store as 16 byte eph_key_dec 
-            $display("STATE 2 DEBUG \n rx_buf[0] %X", rx_buf[0]);
-            $display("STATE 2 DEBUG \n rx_buf[1] %X", rx_buf[1]);
-            $display("STATE 2 DEBUG \n counter %X bytes received", received_byte_count);
-            io_dataIn [7:0]     <= rx_buf[0];
-            io_dataIn [15:8]    <= rx_buf[1];
-            io_dataIn [23:16]   <= rx_buf[2];
-            io_dataIn [31:24]   <= rx_buf[3];
-            io_dataIn [39:32]   <= rx_buf[4];
-            io_dataIn [47:40]   <= rx_buf[5];
-            io_dataIn [55:48]   <= rx_buf[6];
-            io_dataIn [63:56]   <= rx_buf[7];
-            io_dataIn [71:64]   <= rx_buf[8];
-            io_dataIn [79:72]   <= rx_buf[9];
-            io_dataIn [87:80]   <= rx_buf[10];
-            io_dataIn [95:88]   <= rx_buf[11];
-            io_dataIn [103:96]  <= rx_buf[12];
-            io_dataIn [111:104] <= rx_buf[13];
-            io_dataIn [119:112] <= rx_buf[14];
-            io_dataIn [127:120] <= rx_buf[15];
-
-            io_dataIn <= test_cipher;
-            io_key <= test_key;
-
-            io_decrypt <= 1'b1;
-            io_start <= 1'b1;
-            
-            @(posedge clk);
-            io_start <= 1'b0;
-
-            //@(posedge io_done);
-            if (io_done) begin
-                //POTENTIALLY USELESS :)
-                rx_buf[0] <= io_dataOut [7:0];
-                rx_buf[1] <= io_dataOut [15:8];
-                rx_buf[2] <= io_dataOut [23:16];
-                rx_buf[3] <= io_dataOut [31:24];
-                rx_buf[4] <= io_dataOut [39:32];
-                rx_buf[5] <= io_dataOut [47:40];
-                rx_buf[6] <= io_dataOut [55:48];
-                rx_buf[7] <= io_dataOut [63:56];
-                rx_buf[8] <= io_dataOut [71:64];
-                rx_buf[9] <= io_dataOut [79:72];
-                rx_buf[10] <= io_dataOut [87:80];
-                rx_buf[11] <= io_dataOut [95:88];
-                rx_buf[12] <= io_dataOut [103:96];
-                rx_buf[13] <= io_dataOut [111:104];
-                rx_buf[14] <= io_dataOut [119:112];
-                rx_buf[15] <= io_dataOut [127:120];
-
-
-                //store challenge from KEYCARD
-                rec_Challenge[63:0] <= io_dataOut[127:64];
-
-                next_state = S3; 
-                enable_sample = 1'b1;
-                @(posedge clk);
+            if ((~io_done) && (io_done_last_clk == 1'b1)) begin
+                if (~state2_flag1) begin
+                    $display("S2 termination??");
+                    state2_flag1 <= 1'b1;
+                end else begin
+                    $display("S2 termination!!");
+                    io_done_last_clk <= 1'b0;
+                    next_state <= S3;
+                    enable_sample <= 1'b1;
+                    state2_flag1 <= 1'b0;
+                    io_decrypt <= 1'b0;
+                end
             end
         end
         S3: begin 
@@ -922,9 +878,12 @@ always @(posedge clk or posedge rst) begin
         state1_flag1 <= 1'b0;
         state1_flag2 <= 1'b0;
         state1_flag3 <= 1'b0;
+        w_RX_DV_last_clk <= 1'b0;  
         state2_flag0 <= 1'b0;
         state2_flag1 <= 1'b0;
         state2_flag2 <= 1'b0;
+        state2_flag3 <= 1'b0;
+        //io_done_last_clk <= 1'b0;
 
         //received_byte_count <= 1'b0;
         enable_sample <= 1'b0;
@@ -985,6 +944,78 @@ always @(posedge clk or posedge rst) begin
             end
         end
 
+        if (state == S2 && next_state == S2) begin
+            if (~state2_flag2) begin
+                // decrypt 16 byte challenge here
+                // generate own 8 byte challenge
+                // concat first 8 bytes of challenge with own challenge
+                // store as 16 byte eph_key_dec 
+                $display("STATE 2 DEBUG \n rx_buf[0] %X", rx_buf[0]);
+                $display("STATE 2 DEBUG \n rx_buf[1] %X", rx_buf[1]);
+                $display("STATE 2 DEBUG \n counter %X bytes received", received_byte_count);
+                io_dataIn [7:0]     <= rx_buf[0];
+                io_dataIn [15:8]    <= rx_buf[1];
+                io_dataIn [23:16]   <= rx_buf[2];
+                io_dataIn [31:24]   <= rx_buf[3];
+                io_dataIn [39:32]   <= rx_buf[4];
+                io_dataIn [47:40]   <= rx_buf[5];
+                io_dataIn [55:48]   <= rx_buf[6];
+                io_dataIn [63:56]   <= rx_buf[7];
+                io_dataIn [71:64]   <= rx_buf[8];
+                io_dataIn [79:72]   <= rx_buf[9];
+                io_dataIn [87:80]   <= rx_buf[10];
+                io_dataIn [95:88]   <= rx_buf[11];
+                io_dataIn [103:96]  <= rx_buf[12];
+                io_dataIn [111:104] <= rx_buf[13];
+                io_dataIn [119:112] <= rx_buf[14];
+                io_dataIn [127:120] <= rx_buf[15];
+
+                io_dataIn <= test_cipher;
+                io_key <= test_key;
+
+                io_decrypt <= 1'b1;
+                io_start <= 1'b1;
+                state2_flag2 <= 1'b1;
+                $display("[%0t] vor clockedge", $time);
+            end else begin
+            //@(posedge clk);
+
+                $display("[%0t] nach clockedge", $time);
+                io_start <= 1'b0;
+
+                if (~state2_flag3) begin 
+                    state2_flag3 <= 1'b1;
+                end else begin 
+                //@(posedge io_done);
+                    if (io_done) begin
+                        io_done_last_clk <= 1'b1;
+                        $display("io_done :)");
+                        //POTENTIALLY USELESS :)
+                        rx_buf[0] <= io_dataOut [7:0];
+                        rx_buf[1] <= io_dataOut [15:8];
+                        rx_buf[2] <= io_dataOut [23:16];
+                        rx_buf[3] <= io_dataOut [31:24];
+                        rx_buf[4] <= io_dataOut [39:32];
+                        rx_buf[5] <= io_dataOut [47:40];
+                        rx_buf[6] <= io_dataOut [55:48];
+                        rx_buf[7] <= io_dataOut [63:56];
+                        rx_buf[8] <= io_dataOut [71:64];
+                        rx_buf[9] <= io_dataOut [79:72];
+                        rx_buf[10] <= io_dataOut [87:80];
+                        rx_buf[11] <= io_dataOut [95:88];
+                        rx_buf[12] <= io_dataOut [103:96];
+                        rx_buf[13] <= io_dataOut [111:104];
+                        rx_buf[14] <= io_dataOut [119:112];
+                        rx_buf[15] <= io_dataOut [127:120];
+
+                        //store challenge from KEYCARD
+                        rec_Challenge[63:0] <= io_dataOut[127:64];
+                        state2_flag2 <= 1'b0; 
+                        state2_flag3 <= 1'b0; 
+                    end
+                end
+            end
+        end
 
         if (state == S3 && next_state == S3 && init_done) begin
             if (rst) begin 
