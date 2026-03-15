@@ -67,7 +67,8 @@ logic state6_flag2;
 logic state6_flag3;
 logic state6_flag4;
 logic wait_for_valid_ID_valid;
-
+reg [15:0] unlocked_timer;
+logic state7_flag1;
 
 
 
@@ -323,6 +324,7 @@ end
             state <= S0;
             lock_state <= 1'b0;
             received_byte_count <= 1'b0;
+            unlocked_timer <= 16'b0;
         end else begin
             state <= next_state;
             lock_state <= next_lock_state;
@@ -331,18 +333,14 @@ end
 
 // Next-State-Logik 
     always @(*) begin 
-        // Default 
-         
-
         // Default SPI control signals 
         i_TX_DV_reg = 1'b0; 
         i_TX_Count_reg = 0;
 
-
-
     case (state)
         S0: begin
             if (in) next_state = S1;
+            next_lock_state <= 1'b0;
             $display("[%0t] switched to S1", $time);
             received_byte_count <= 1'b0;
         end
@@ -466,7 +464,16 @@ end
             end
         end
         S7: begin
-            next_state<= S0;
+            @(posedge clk)
+            if (~state7_flag1) begin 
+                state7_flag1 <= 1'b1;
+            end else if (unlocked_timer == 16'b1111111111111111) begin 
+                next_state <= S0;
+                state7_flag1 <= 1'b0;
+                next_lock_state <= 1'b0;
+            end else begin
+                unlocked_timer <= unlocked_timer + 1;
+            end
         end
         default: next_state = S0;
     endcase
@@ -516,6 +523,8 @@ always @(posedge clk or posedge rst) begin
         state6_flag3 <= 1'b0;
         state6_flag4 <= 1'b0;
         wait_for_valid_ID_valid <= 1'b0;
+
+        state7_flag1 <= 1'b0;
 
         //received_byte_count <= 1'b0;
         enable_sample <= 1'b0;
@@ -703,7 +712,7 @@ always @(posedge clk or posedge rst) begin
                 //io_key <= test_key;
             io_key <= preSharedKey;
                 //io_dataIn <= auth_success;
-                //io_key <= 128'Hfc63ec007408c00727eb880970804c24;
+                //io_key <= 128'H7f27c5cf01fdf40127eb880970804c24;
                 //io_dataIn <= KeycardAvalidID;
             io_decrypt <= 1'b0;
             io_start <= 1'b1;
@@ -841,10 +850,10 @@ always @(posedge clk or posedge rst) begin
                 io_dataIn [119:112] <= rx_buf[14];
                 io_dataIn [127:120] <= rx_buf[15];
 
-                    io_dataIn <= 128'Hb415dc8f6bade9f725a8ecec5c88a0f0;
+                    io_dataIn <= 128'H495e1ed17cb3ff77c38bf654b8cea01a;
 
                 //io_key <= ephKey;
-                    io_key <= 128'Hfc63ec007408c00727eb880970804c24;
+                    io_key <= 128'H7f27c5cf01fdf40127eb880970804c24;
                     
                     //io_key <= test_key;
 
@@ -898,7 +907,7 @@ always @(posedge clk or posedge rst) begin
                 $display("Authenticated Keycard, asking ID next...");
             end else begin
                 mAuthRes_valid <= 1'b0;
-                $display("Failed to Authentice Keycard, restoring program at S0");
+                $display("Failed to Authenticate Keycard, restoring program at S0");
             end
             state5_flag2 <= 1'b0;
         end
@@ -984,7 +993,8 @@ always @(posedge clk or posedge rst) begin
                 io_dataIn [119:112] <= rx_buf[14];
                 io_dataIn [127:120] <= rx_buf[15];
 
-                io_dataIn <= 128'H828b132c596d1906d9090456e5671b56;
+                //io_dataIn <= 128'H828b132c596d1906d9090456e5671b56;
+                io_dataIn <= 128'Hb20e8632aab045bac5f15a4d85471c02;
                 
                 io_key <= ephKey;
 
@@ -1027,18 +1037,8 @@ always @(posedge clk or posedge rst) begin
             state6_flag3 <= 1'b0;
         end
 
-
-        // S5.1 - ...
-        // unlocked only in S5
-        
-        if (state == S7 && next_state == S7) next_lock_state = 1'b1;
+        if (state == S7) next_lock_state = 1'b1;
 
     end
 end
-
-// Instantiate AES 
-// ... 
-// Instantiate ASG 
-// ...
-
 endmodule
