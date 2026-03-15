@@ -125,10 +125,10 @@ spi_inst (
     .o_RX_Byte(w_RX_Byte),
 
     .o_SPI_Clk(o_SPI_Clk),
-    .i_SPI_MISO(i_SPI_MISO),
-    //.i_SPI_MISO(o_SPI_MOSI),
-    .o_SPI_MOSI(o_SPI_MOSI),
+    //.i_SPI_MISO(i_SPI_MISO),
+    .i_SPI_MISO(o_SPI_MOSI),
     //.o_SPI_MOSI(o_SPI_MOSI),
+    .o_SPI_MOSI(o_SPI_MOSI),
     .o_SPI_CS_n(o_SPI_CS_n)
 );
 
@@ -831,10 +831,10 @@ always @(posedge clk or posedge rst) begin
                 io_dataIn [119:112] <= rx_buf[14];
                 io_dataIn [127:120] <= rx_buf[15];
 
-                    //io_dataIn <= 128'H495e1ed17cb3ff77c38bf654b8cea01a;
+                    io_dataIn <= 128'H495e1ed17cb3ff77c38bf654b8cea01a;
 
-                io_key <= ephKey;
-                    //io_key <= 128'H7f27c5cf01fdf40127eb880970804c24;
+                //io_key <= ephKey;
+                    io_key <= 128'H7f27c5cf01fdf40127eb880970804c24;
                     
                     //io_key <= test_key;
 
@@ -978,7 +978,7 @@ always @(posedge clk or posedge rst) begin
 
 
                 //io_dataIn <= 128'H828b132c596d1906d9090456e5671b56;
-                //io_dataIn <= 128'Hb20e8632aab045bac5f15a4d85471c02;
+                io_dataIn <= 128'Hb20e8632aab045bac5f15a4d85471c02;
                 
                 io_key <= ephKey;
 
