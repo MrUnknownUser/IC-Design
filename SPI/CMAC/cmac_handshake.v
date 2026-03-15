@@ -1,7 +1,7 @@
 // INCLUDES 
-`include "SPI_Master_With_Single_CS.v" 
-`include "AesIterative.v"
-`include "ASG.v"
+//`include "SPI_Master_With_Single_CS.v" 
+//`include "AesIterative.v"
+//`include "ASG.v"
 
 /* verilator lint_off SYNCASYNCNET */
 module cmac_handshake ( 
@@ -127,8 +127,8 @@ spi_inst (
     .o_RX_DV(w_RX_DV),
     .o_RX_Byte(w_RX_Byte),
     .o_SPI_Clk(o_SPI_Clk),
-    //.i_SPI_MISO(i_SPI_MISO),
-    .i_SPI_MISO(o_SPI_MOSI),  // !! changed for testing
+    .i_SPI_MISO(i_SPI_MISO),
+    //.i_SPI_MISO(o_SPI_MOSI),  // !! changed for testing
     .o_SPI_MOSI(o_SPI_MOSI),
     .o_SPI_CS_n(spi_cs_n_int)
 );
@@ -565,7 +565,7 @@ always @(posedge clk or posedge rst) begin
         // S3.1 : Generate own 8-byte challenge via ASG
         // ------------------------------------------------------------------
         if (state == S3 && next_state == S3 && init_done) begin
-            $display("S3: init_done");
+            //$display("S3: init_done");
             if (!sampling) begin
                 sampled_done <= 1'b0;
                 if (enable_sample) begin
@@ -590,7 +590,7 @@ always @(posedge clk or posedge rst) begin
 
         // S3.2 : Build cAuthCmd_dec
         if (state == S3 && next_state == S3 && sampled_done) begin
-            $display("S3: sampled_done");
+            //$display("S3: sampled_done");
 
             cAuthCmd_dec[127:64]   <= rec_Challenge;
             cAuthCmd_dec[63:0]     <= own_Challenge;
@@ -600,27 +600,27 @@ always @(posedge clk or posedge rst) begin
 
         // S3.3 : Encrypt cAuthCmd_dec
         if (state == S3 && next_state == S3 && state3_flag2) begin
-            $display("S3: state3_flag2");
+            //$display("S3: state3_flag2");
             io_dataIn  <= cAuthCmd_dec;
             io_key     <= preSharedKey;
             io_decrypt <= 1'b0;
             io_start   <= 1'b1;
-            $display("[0%t] S3: io_start   <= 1'b1;  %X", $time, io_start);
+            //$display("[0%t] S3: io_start   <= 1'b1;  %X", $time, io_start);
             state3_flag2 <= 1'b0;
             state3_flag3 <= 1'b1;
         end
 
         // S3.4 : Deassert io_start
         if (state == S3 && next_state == S3 && state3_flag3) begin
-            $display("S3: state3_flag3");
+            //$display("S3: state3_flag3");
             io_start     <= 1'b0;
-            $display("[0%t] S3: io_start   <= 1'b0;  %X", $time, io_start);
+            //$display("[0%t] S3: io_start   <= 1'b0;  %X", $time, io_start);
             //state3_flag3 <= 1'b0;
         end
 
         // S3.5 : Store encrypted cAuthCmd_enc
         if (state == S3 && next_state == S3 && io_done && state3_flag3) begin
-            $display("S3: io_done");
+            //$display("S3: io_done");
             cAuthCmd_enc          <= io_dataOut;
             state3_flag3 <= 1'b0;
             sampled_done_last_clk <= 1'b1;
@@ -628,7 +628,7 @@ always @(posedge clk or posedge rst) begin
 
         // S3 flag gate for S3->S4
         if (state == S3 && !sampled_done && sampled_done_last_clk && !state3_flag1) begin
-            $display("S3: whatever the funk");
+            //$display("S3: whatever the funk");
             state3_flag1 <= 1'b1;
         end
         // S3->S4 cleanup
@@ -728,7 +728,7 @@ always @(posedge clk or posedge rst) begin
         // S5.1 : Build ephKey
         // ------------------------------------------------------------------
         if (state == S5 && next_state == S5 && ~mAuthRes_valid) begin
-            $display("S5 start");
+            //$display("S5 start");
             ephKey[127:64] <= own_Challenge[63:0];
             ephKey[63:0]   <= rec_Challenge[63:0];
             state5_flag1   <= 1'b1;
@@ -736,9 +736,9 @@ always @(posedge clk or posedge rst) begin
 
         // S5.2 : Decrypt cAuthRes using ephKey
         if (state == S5 && next_state == S5 && state5_flag1) begin
-            $display("S5 state5_flag1");
+            //$display("S5 state5_flag1");
             if (!is_decrypting) begin
-                $display("ephKey: %X", ephKey);
+                //$display("ephKey: %X", ephKey);
                 io_dataIn[7:0]     <= rx_buf[0];
                 io_dataIn[15:8]    <= rx_buf[1];
                 io_dataIn[23:16]   <= rx_buf[2];
@@ -756,7 +756,7 @@ always @(posedge clk or posedge rst) begin
                 io_dataIn[119:112] <= rx_buf[14];
                 io_dataIn[127:120] <= rx_buf[15];
 
-                    io_dataIn <= 128'Hf226f408245529a5f71722a242eb87d3; // !! test dings
+                    //io_dataIn <= 128'Hf226f408245529a5f71722a242eb87d3; // !! test dings
 
                 io_key             <= ephKey;
                 io_decrypt         <= 1'b1;
@@ -797,13 +797,13 @@ always @(posedge clk or posedge rst) begin
 
         // S5.3 : Validate mAuthRes plaintext
         if (state == S5 && next_state == S5 && state5_flag2) begin
-            $display("S5 state5_flag2");
+            //$display("S5 state5_flag2");
             if (mAuthRes == auth_success) begin
-                $display("valid mAuthRes");
+                //$display("valid mAuthRes");
                 mAuthRes_valid <= 1'b1;
             end
             else begin
-                $display("invalid mAuthRes");
+                //$display("invalid mAuthRes");
                 mAuthRes_valid <= 1'b0;
             end
             state5_flag2 <= 1'b0;
@@ -811,17 +811,17 @@ always @(posedge clk or posedge rst) begin
 
         // S5 flag gate for S5->S6/S0
         if (state == S5 && !io_done && io_done_last_clk && !state5_flag3) begin
-            $display("S5 weird shit");
+            //$display("S5 weird shit");
             state5_flag1 <= 1'b0;
             state5_flag3 <= 1'b1;
         end
         if (state == S5 && !io_done && io_done_last_clk && state5_flag3 && !wait_for_mAuthRes_valid) begin
-            $display("S5 state5_flag3");
+            //$display("S5 state5_flag3");
             wait_for_mAuthRes_valid <= 1'b1;
         end
         // S5->S6 or S5->S0 cleanup
         if (state == S5 && (next_state == S6 || next_state == S0)) begin
-            $display("S5 cleanup");
+            //$display("S5 cleanup");
             io_done_last_clk        <= 1'b0;
             wait_for_mAuthRes_valid <= 1'b0;
             state5_flag3            <= 1'b0;
@@ -883,24 +883,24 @@ always @(posedge clk or posedge rst) begin
         // S6.2 : Decrypt rec_ID_enc using ephKey
         if (state == S6 && next_state == S6 && state6_flag2) begin
             if (!is_decrypting) begin
-                //io_dataIn[7:0]     <= rx_buf[0];
-                //io_dataIn[15:8]    <= rx_buf[1];
-                //io_dataIn[23:16]   <= rx_buf[2];
-                //io_dataIn[31:24]   <= rx_buf[3];
-                //io_dataIn[39:32]   <= rx_buf[4];
-                //io_dataIn[47:40]   <= rx_buf[5];
-                //io_dataIn[55:48]   <= rx_buf[6];
-                //io_dataIn[63:56]   <= rx_buf[7];
-                //io_dataIn[71:64]   <= rx_buf[8];
-                //io_dataIn[79:72]   <= rx_buf[9];
-                //io_dataIn[87:80]   <= rx_buf[10];
-                //io_dataIn[95:88]   <= rx_buf[11];
-                //io_dataIn[103:96]  <= rx_buf[12];
-                //io_dataIn[111:104] <= rx_buf[13];
-                //io_dataIn[119:112] <= rx_buf[14];
-                //io_dataIn[127:120] <= rx_buf[15];
+                io_dataIn[7:0]     <= rx_buf[0];
+                io_dataIn[15:8]    <= rx_buf[1];
+                io_dataIn[23:16]   <= rx_buf[2];
+                io_dataIn[31:24]   <= rx_buf[3];
+                io_dataIn[39:32]   <= rx_buf[4];
+                io_dataIn[47:40]   <= rx_buf[5];
+                io_dataIn[55:48]   <= rx_buf[6];
+                io_dataIn[63:56]   <= rx_buf[7];
+                io_dataIn[71:64]   <= rx_buf[8];
+                io_dataIn[79:72]   <= rx_buf[9];
+                io_dataIn[87:80]   <= rx_buf[10];
+                io_dataIn[95:88]   <= rx_buf[11];
+                io_dataIn[103:96]  <= rx_buf[12];
+                io_dataIn[111:104] <= rx_buf[13];
+                io_dataIn[119:112] <= rx_buf[14];
+                io_dataIn[127:120] <= rx_buf[15];
 
-                    io_dataIn <= 128'Hc2ddfe589a4d58582e05c149f97ae49d; /// !! test
+                    //io_dataIn <= 128'Hc2ddfe589a4d58582e05c149f97ae49d; /// !! test
 
                 io_key             <= ephKey;
                 io_decrypt         <= 1'b1;
@@ -926,11 +926,11 @@ always @(posedge clk or posedge rst) begin
         // S6.3 : Validate rec_ID
         if (state == S6 && next_state == S6 && state6_flag3) begin
             if (rec_ID == KeycardAvalidID) begin
-                $display("valid KeyCard A");
+                //$display("valid KeyCard A");
                 valid_ID <= 1'b1;
             end
             else begin
-                $display("invalid KeyCard");
+                //$display("invalid KeyCard");
                 valid_ID <= 1'b0;
             end
             state6_flag3 <= 1'b0;
