@@ -1,0 +1,26 @@
+Login:
+ssh -i /path/to/key root@icd01.local.cs.hs-rm.de
+
+Vorbereitung:
+- cd 24/librelane
+- passe die config.yaml an, indem bei Zeile 32 die pfade für die verilog files gesetzt werden
+- cd ..
+- cd scr
+- passe in der chip_top.sv den Modulinstanz ab Zeile 167 an (behalte das "(* keep *)"!)
+- packe alle wichtigen .v Files in den src ordner
+- cd ..
+- führe den Befehl in Zeile 15 aus
+- Fix evtl. auftretende Errors/Warning in verilator
+
+Um KLayout Density errors zu minimieren:
+librelane librelane/config.yaml --pdk ihp-sg13g2 --pdk-root IHP-Open-PDK/ --manual-pdk --last-run -T KLayout.Filler
+cd 24/librelane
+klayout -zz -r erase_m2m3_fill.py ./runs/RUN_2026-03-13_15-39-50/63-klayout-filler/hsrmteam3.gds
+cd ..
+podman run --rm -it -v "$(pwd)":/work docker.io/dnltz/elements:v2.1 /bin/bash
+cd ../..
+gdsfill fill ./librelane/runs/RUN_2026-03-13_15-39-50/63-klayout-filler/hsrmteam3.gds --config-file ./gdsfill_config.yaml
+exit
+screen -R build
+nix-shell (wenn nicht bereits offen)
+librelane librelane/config.yaml --pdk ihp-sg13g2 --pdk-root IHP-Open-PDK/ --manual-pdk --last-run -F KLayout.Density
