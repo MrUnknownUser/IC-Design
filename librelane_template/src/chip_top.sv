@@ -3,7 +3,7 @@
 
 `default_nettype none
 
-module chip_top #(
+module hsrmteam3 #(
     // Power/ground pads for core
     parameter NUM_VDD_PADS = 1,
     parameter NUM_VSS_PADS = 1,
@@ -15,8 +15,6 @@ module chip_top #(
     // Signal pads
     parameter NUM_INPUT_PADS  = 8,
     parameter NUM_OUTPUT_PADS = 10
-    //parameter NUM_BIDIR_PADS  = 0,
-    //parameter NUM_ANALOG_PADS = 0
     )(
     `ifdef USE_POWER_PINS
     inout wire IOVDD,
@@ -28,18 +26,17 @@ module chip_top #(
     inout  wire rst_n_PAD,
     inout  wire [NUM_INPUT_PADS-1 :0] input_PAD,
     inout  wire [NUM_OUTPUT_PADS-1:0] output_PAD
-    //inout  wire [NUM_BIDIR_PADS-1 :0] bidir_PAD,
-    //inout  wire [NUM_ANALOG_PADS-1:0] analog_PAD
 );
 
     wire clk_PAD2CORE;
     wire rst_n_PAD2CORE;
     wire [NUM_INPUT_PADS-1 :0] input_PAD2CORE;
     wire [NUM_OUTPUT_PADS-1:0] output_CORE2PAD;
-    //wire [NUM_BIDIR_PADS-1 :0] bidir_PAD2CORE;
-    //wire [NUM_BIDIR_PADS-1 :0] bidir_CORE2PAD;
-    //wire [NUM_BIDIR_PADS-1 :0] bidir_CORE2PAD_OE;
-    //wire [NUM_ANALOG_PADS-1:0] analog_PADRES;
+
+    localparam int AES_INPUTS_USED  = 2;
+    // 4 outputs used: lock_state, o_SPI_Clk, o_SPI_MOSI, o_SPI_CS_n
+    // Was 3, which caused MULTIDRIVEN on output_CORE2PAD[3] (o_SPI_CS_n)
+    localparam int AES_OUTPUTS_USED = 4;
 
     // Power/ground pad instances
     generate
@@ -144,43 +141,36 @@ module chip_top #(
         );
     end
     endgenerate
-    
+
     generate
-    if (NUM_INPUT_PADS > 4) 
-    	begin : g_consume_unused_inputs
-		wire _unused_inputs_hi;
-		assign _unused_inputs_hi = |input_PAD2CORE[NUM_INPUT_PADS-1:4];
-	end
+    if (NUM_OUTPUT_PADS > AES_OUTPUTS_USED) begin : tieoff_unused_outputs
+        assign output_CORE2PAD[NUM_OUTPUT_PADS-1:AES_OUTPUTS_USED] = '0;
+    end
     endgenerate
 
-	// Unused output bits [NUM_OUTPUT_PADS-1:3] treiben
-	generate
-	if (NUM_OUTPUT_PADS > 3) begin : g_tieoff_unused_outputs
-	    assign output_CORE2PAD[NUM_OUTPUT_PADS-1:3] = '0;
-	end
-	endgenerate
+    generate
+    if (NUM_INPUT_PADS > AES_INPUTS_USED) begin : mark_unused_inputs
+        (* keep *)
+        wire unused_input_bits_seen;
+        assign unused_input_bits_seen = |input_PAD2CORE[NUM_INPUT_PADS-1:AES_INPUTS_USED];
+    end
+    endgenerate
 
 
     // Core design
-
-    (* keep *) //AesTop (
-        //.NUM_INPUT_PADS  (NUM_INPUT_PADS),
-        //.NUM_OUTPUT_PADS (NUM_OUTPUT_PADS)
-        //.NUM_BIDIR_PADS  (NUM_BIDIR_PADS),
-        //.NUM_ANALOG_PADS (NUM_ANALOG_PADS)
-    //); i_AesTop (
-    AesTop AesTop(
-        .io_clk          (clk_PAD2CORE),
-        .io_reset        (rst_n_PAD2CORE),
-        .io_dataIn_bit   (input_PAD2CORE[0]),
-        .io_start        (input_PAD2CORE[1]),
-        .io_decrypt      (input_PAD2CORE[2]),
-        .io_key_bit      (input_PAD2CORE[3]),
-        .io_dataOut_bit  (output_CORE2PAD[0]),
-        .io_busy         (output_CORE2PAD[1]),
-        .io_done         (output_CORE2PAD[2])
+    (* keep *)
+    cmac_handshake CMAC_DEA(
+        .clk        (clk_PAD2CORE),
+        .rst        (rst_n_PAD2CORE),
+        .in         (input_PAD2CORE[0]),
+        .i_SPI_MISO (input_PAD2CORE[1]),
+        .lock_state (output_CORE2PAD[0]),
+        .o_SPI_Clk  (output_CORE2PAD[1]),
+        .o_SPI_MOSI (output_CORE2PAD[2]),
+        .o_SPI_CS_n (output_CORE2PAD[3])
     );
 
 endmodule
 
 `default_nettype wire
+
