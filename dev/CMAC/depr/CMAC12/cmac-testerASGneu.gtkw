@@ -1,0 +1,59 @@
+[*]
+[*] GTKWave Analyzer v3.3.116 (w)1999-2023 BSI
+[*] Sun Mar 15 13:42:06 2026
+[*]
+[dumpfile] "/home/chschraa/IC-Design/SPI/CMAC/dump.vcd"
+[dumpfile_mtime] "Sun Mar 15 13:38:43 2026"
+[dumpfile_size] 36812895
+[savefile] "/home/chschraa/IC-Design/SPI/CMAC/cmac-testerASGneu.gtkw"
+[timestart] 0
+[size] 1854 935
+[pos] -1 -1
+*-22.100000 9802000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] CMAC_TESTING.
+[treeopen] CMAC_TESTING.cmac1.
+[sst_width] 278
+[signals_width] 476
+[sst_expanded] 1
+[sst_vpaned_height] 274
+@28
+CMAC_TESTING.clk
+CMAC_TESTING.in
+CMAC_TESTING.rst
+CMAC_TESTING.o_SPI_Clk
+@c00028
+CMAC_TESTING.cmac1.state[2:0]
+@28
+(0)CMAC_TESTING.cmac1.state[2:0]
+(1)CMAC_TESTING.cmac1.state[2:0]
+(2)CMAC_TESTING.cmac1.state[2:0]
+@1401200
+-group_end
+@29
+CMAC_TESTING.cmac1.lock_state
+@28
+CMAC_TESTING.cmac1.next_lock_state
+@22
+CMAC_TESTING.cmac1.spi_inst.i_TX_Byte[7:0]
+@28
+CMAC_TESTING.cmac1.spi_inst.i_TX_DV
+CMAC_TESTING.cmac1.spi_inst.o_TX_Ready
+CMAC_TESTING.cmac1.spi_inst.r_CS_n
+@22
+CMAC_TESTING.cmac1.spi_inst.o_RX_Byte[7:0]
+@28
+CMAC_TESTING.cmac1.spi_inst.o_RX_DV
+CMAC_TESTING.cmac1.asg1.newBit
+CMAC_TESTING.cmac1.sampled_done
+CMAC_TESTING.cmac1.sampling
+CMAC_TESTING.cmac1.enable_sample
+@22
+CMAC_TESTING.cmac1.ephKey[127:0]
+CMAC_TESTING.cmac1.own_Challenge[63:0]
+CMAC_TESTING.cmac1.rec_Challenge[63:0]
+CMAC_TESTING.cmac1.cAuthCmd_dec[127:0]
+CMAC_TESTING.cmac1.cAuthCmd_enc[127:0]
+CMAC_TESTING.cmac1.rec_ID[127:0]
+CMAC_TESTING.cmac1.KeycardAvalidID[127:0]
+[pattern_trace] 1
+[pattern_trace] 0
