@@ -1,5 +1,6 @@
 # KLayout
 ## How to manual load .lyp
+The *.lyp file for sg13g2 is located in the IHP-GmbH/IHP-Open-PDK repository under ```ihp-sg13g2/libs.tech/klayout/tech/sg13g2.lyp```
 Go to ```File -> Load Layer Properties``` and select the *.lyp file 
 
 ## How to auto load .lyp
@@ -8,7 +9,6 @@ Go to ```File -> Load Layer Properties``` and select the *.lyp file
 3. Check "Use default layer properties file"
 4. Copy the following into the textarea bellow: $(combine(path(layoutfile), basename(layoutfile))+".lyp")
 5. Click Ok or Apply button
-The *.lyp file for sg13g2 is located in the IHP-GmbH/IHP-Open-PDK repository under ```ihp-sg13g2/libs.tech/klayout/tech/sg13g2.lyp```
 
 ## How to load .lyrdb
 1. Go to ```Tools -> Marker Browser```
